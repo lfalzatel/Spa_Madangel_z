@@ -99,7 +99,7 @@ export function EmpleadoList() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -111,7 +111,10 @@ export function EmpleadoList() {
                 Administra al personal del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewEmpleado} className="bg-pink-500 hover:bg-pink-600">
+            <Button 
+              onClick={handleNewEmpleado} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Empleado
             </Button>
@@ -179,21 +182,27 @@ export function EmpleadoList() {
                       </TableCell>
                       <TableCell>
                         {empleado.especialidad ? (
-                          <Badge variant="secondary" className="bg-purple-100 text-purple-800">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md shadow-purple-500/30">
                             <Star className="w-3 h-3 mr-1" />
                             {empleado.especialidad}
-                          </Badge>
+                          </span>
                         ) : (
                           <span className="text-gray-400">No asignada</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        <Badge variant={empleado.activo ? "default" : "secondary"}>
-                          {empleado.activo ? "Activo" : "Inactivo"}
-                        </Badge>
+                        {empleado.activo ? (
+                          <span className="badge-completada">Activo</span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-400 text-white">
+                            Inactivo
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
-                        {new Date(empleado.fechaContratacion).toLocaleDateString('es-ES')}
+                        <span className="text-sm text-gray-600">
+                          {new Date(empleado.fechaContratacion).toLocaleDateString('es-ES')}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
@@ -201,6 +210,7 @@ export function EmpleadoList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(empleado)}
+                            className="hover:bg-blue-50"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -208,7 +218,7 @@ export function EmpleadoList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(empleado.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
