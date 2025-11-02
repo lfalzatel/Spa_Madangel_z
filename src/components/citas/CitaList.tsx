@@ -100,28 +100,37 @@ export function CitaList() {
     setIsFormOpen(true)
   }
 
-  // ✨ MEJORADO: Badges únicos para cada estado
   const getEstadoClass = (estado: string) => {
     const badges: { [key: string]: string } = {
       'programada': 'badge-pendiente',
       'completada': 'badge-completada',
       'cancelada': 'badge-cancelada',
       'confirmada': 'badge-confirmada',
-      'no_asistio': 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-500 text-white shadow-md' // Badge gris único
+      'no_asistio': 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-500 text-white shadow-md'
     }
     return badges[estado] || 'badge-pendiente'
   }
 
-  // ✨ NUEVO: Formatear fecha con día de la semana
-  const formatearFechaConDia = (fecha: string) => {
-    const date = new Date(fecha)
+  // 🔧 CORREGIDO: Formatear fecha sin problemas de zona horaria
+  const formatearFechaConDia = (fechaString: string) => {
+    // Extraer la fecha del string sin usar new Date() para evitar problemas de zona horaria
+    const fechaSolo = fechaString.split('T')[0] // '2025-11-02'
+    const [year, month, day] = fechaSolo.split('-').map(Number)
+    
+    // Crear fecha en zona horaria local
+    const date = new Date(year, month - 1, day)
+    
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    const meses = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic']
+    
     const diaSemana = dias[date.getDay()]
-    const fechaFormateada = date.toLocaleDateString('es-ES')
+    const diaNumero = day
+    const mes = meses[month - 1]
+    const año = year
     
     return {
       diaSemana,
-      fecha: fechaFormateada
+      fecha: `${diaNumero}/${month}/${año}` // Formato DD/MM/YYYY
     }
   }
 
@@ -205,7 +214,6 @@ export function CitaList() {
                     
                     return (
                       <TableRow key={cita.id}>
-                        {/* ✨ MEJORADO: Fecha con día de la semana */}
                         <TableCell>
                           <div>
                             <div className="flex items-center text-sm font-medium text-gray-800">
@@ -242,9 +250,18 @@ export function CitaList() {
                           </div>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center text-sm font-medium text-green-600">
-                            <DollarSign className="w-3 h-3 mr-1" />
-                            ${cita.total.toLocaleString('es-CO')}
+                          <div>
+                            {/* Mostrar precio de la cita */}
+                            <div className="flex items-center text-sm font-medium text-green-600">
+                              <DollarSign className="w-3 h-3 mr-1" />
+                              ${cita.total.toLocaleString('es-CO')}
+                            </div>
+                            {/* 🆕 Mostrar precio del servicio si es diferente */}
+                            {cita.total !== cita.servicio.precio && (
+                              <div className="text-xs text-orange-600 mt-1">
+                                (Servicio: ${cita.servicio.precio.toLocaleString('es-CO')})
+                              </div>
+                            )}
                           </div>
                         </TableCell>
                         <TableCell>
