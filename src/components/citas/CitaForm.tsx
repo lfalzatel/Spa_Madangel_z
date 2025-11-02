@@ -30,6 +30,7 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
   const [clientes, setClientes] = useState([])
   const [empleados, setEmpleados] = useState([])
   const [servicios, setServicios] = useState([])
+  const [selectedServicioInfo, setSelectedServicioInfo] = useState<any>(null) // ✨ NUEVO
 
   // ✅ FIX 1: Cargar datos de la cita cuando el modal se abre para editar
   useEffect(() => {
@@ -43,6 +44,10 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
         notas: cita.notas || '',
         estado: cita.estado || 'programada'
       })
+      // ✨ NUEVO: Cargar info del servicio seleccionado al editar
+      if (cita.servicio) {
+        setSelectedServicioInfo(cita.servicio)
+      }
     } else {
       // Si no hay cita (nueva cita), resetear el formulario
       setFormData({
@@ -54,8 +59,9 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
         notas: '',
         estado: 'programada'
       })
+      setSelectedServicioInfo(null)
     }
-  }, [cita, isOpen]) // Se ejecuta cuando cambia la cita o cuando se abre el modal
+  }, [cita, isOpen])
 
   useEffect(() => {
     fetchClientes()
@@ -100,6 +106,17 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
 
   const handleChange = (field: string, value: any) => {
     setFormData(prev => ({ ...prev, [field]: value }))
+  }
+
+  // ✨ NUEVO: Manejar cambio de servicio y actualizar precio
+  const handleServicioChange = (servicioId: string) => {
+    handleChange('servicioId', servicioId)
+    
+    // Encontrar el servicio seleccionado para mostrar su información
+    const servicio = servicios.find((s: any) => s.id === servicioId)
+    if (servicio) {
+      setSelectedServicioInfo(servicio)
+    }
   }
 
   const generateTimeSlots = () => {
@@ -161,18 +178,40 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
 
           <div className="space-y-2">
             <Label htmlFor="servicioId">Servicio *</Label>
-            <Select value={formData.servicioId} onValueChange={(value) => handleChange('servicioId', value)}>
+            <Select value={formData.servicioId} onValueChange={handleServicioChange}>
               <SelectTrigger>
                 <SelectValue placeholder="Selecciona un servicio" />
               </SelectTrigger>
               <SelectContent>
                 {servicios.map((servicio: any) => (
                   <SelectItem key={servicio.id} value={servicio.id}>
-                    {servicio.nombre} - ${servicio.precio.toFixed(2)} ({servicio.duracion}min)
+                    {servicio.nombre} - ${servicio.precio.toLocaleString('es-CO')} ({servicio.duracion}min)
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+            
+            {/* ✨ NUEVO: Mostrar información del servicio seleccionado */}
+            {selectedServicioInfo && (
+              <div className="p-3 bg-blue-50 rounded-lg border border-blue-200 mt-2">
+                <div className="grid grid-cols-2 gap-2 text-sm">
+                  <div>
+                    <span className="text-gray-600">Duración:</span>
+                    <span className="font-medium ml-2">{selectedServicioInfo.duracion} min</span>
+                  </div>
+                  <div>
+                    <span className="text-gray-600">Precio:</span>
+                    <span className="font-medium text-green-600 ml-2">
+                      ${selectedServicioInfo.precio.toLocaleString('es-CO')}
+                    </span>
+                  </div>
+                  <div className="col-span-2">
+                    <span className="text-gray-600">Categoría:</span>
+                    <span className="font-medium ml-2">{selectedServicioInfo.categoria}</span>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
