@@ -31,7 +31,7 @@ export function EstadisticasDashboard() {
       <div className="space-y-6">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <Card key={i} className="animate-pulse">
+            <Card key={i} className="animate-pulse bg-white/80">
               <CardHeader className="space-y-2">
                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
                 <div className="h-8 bg-gray-200 rounded w-1/2"></div>
@@ -45,7 +45,7 @@ export function EstadisticasDashboard() {
 
   if (!stats) {
     return (
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm">
         <CardContent className="text-center py-8">
           <p className="text-gray-500">No se pudieron cargar las estadísticas</p>
         </CardContent>
@@ -53,86 +53,79 @@ export function EstadisticasDashboard() {
     )
   }
 
-  const getEstadoColor = (estado: string) => {
-    const colors: { [key: string]: string } = {
-      'programada': 'bg-blue-100 text-blue-800',
-      'completada': 'bg-green-100 text-green-800',
-      'cancelada': 'bg-red-100 text-red-800',
-      'no_asistio': 'bg-orange-100 text-orange-800'
+  const getEstadoClass = (estado: string) => {
+    const badges: { [key: string]: string } = {
+      'programada': 'badge-pendiente',
+      'completada': 'badge-completada',
+      'cancelada': 'badge-cancelada',
+      'confirmada': 'badge-confirmada',
+      'no_asistio': 'badge-cancelada'
     }
-    return colors[estado] || 'bg-gray-100 text-gray-800'
+    return badges[estado] || 'badge-pendiente'
   }
 
   const totalCitasMes = stats.citasPorEstado.reduce((total: number, item: any) => total + item._count.estado, 0)
 
   return (
     <div className="space-y-6">
-      {/* Tarjetas de estadísticas principales */}
+      {/* Tarjetas de estadísticas principales con solid-card */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-white/80 backdrop-blur-sm border-pink-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-pink-700">
+        <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <p className="text-sm font-medium text-white/80">
               Citas de Hoy
-            </CardTitle>
-            <Calendar className="h-4 w-4 text-pink-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
-            <p className="text-xs text-pink-600">
-              {stats.clientesHoy} clientes únicos
             </p>
-          </CardContent>
-        </Card>
+            <Calendar className="h-5 w-5 text-white" />
+          </div>
+          <div className="text-3xl font-bold text-white mt-2">{stats.citasHoy}</div>
+          <p className="text-xs text-white/70 mt-1">
+            {stats.clientesHoy} clientes únicos
+          </p>
+        </div>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">
+        <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.2s' }}>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <p className="text-sm font-medium text-white/80">
               Total Clientes
-            </CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">{stats.totalClientes}</div>
-            <p className="text-xs text-purple-600">
-              {stats.clientesHoy} hoy
             </p>
-          </CardContent>
-        </Card>
+            <Users className="h-5 w-5 text-white" />
+          </div>
+          <div className="text-3xl font-bold text-white mt-2">{stats.totalClientes}</div>
+          <p className="text-xs text-white/70 mt-1">
+            {stats.clientesHoy} hoy
+          </p>
+        </div>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-green-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-green-700">
+        <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }}>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <p className="text-sm font-medium text-white/80">
               Ingresos del Mes
-            </CardTitle>
-            <DollarSign className="h-4 w-4 text-green-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-900">${stats.ingresosMes.toFixed(2)}</div>
-            <p className="text-xs text-green-600">
-              Total acumulado
             </p>
-          </CardContent>
-        </Card>
+            <DollarSign className="h-5 w-5 text-white" />
+          </div>
+          <div className="text-3xl font-bold text-white mt-2">${stats.ingresosMes.toFixed(2)}</div>
+          <p className="text-xs text-white/70 mt-1">
+            Total acumulado
+          </p>
+        </div>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-orange-700">
+        <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <p className="text-sm font-medium text-white/80">
               Servicios Activos
-            </CardTitle>
-            <Package className="h-4 w-4 text-orange-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-900">{stats.serviciosActivos}</div>
-            <p className="text-xs text-orange-600">
-              {stats.empleadosActivos} empleados activos
             </p>
-          </CardContent>
-        </Card>
+            <Package className="h-5 w-5 text-white" />
+          </div>
+          <div className="text-3xl font-bold text-white mt-2">{stats.serviciosActivos}</div>
+          <p className="text-xs text-white/70 mt-1">
+            {stats.empleadosActivos} empleados activos
+          </p>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Estado de citas del mes */}
-        <Card className="bg-white/80 backdrop-blur-sm">
+        <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-white/40 animate-card-fade-in" style={{ animationDelay: '0.5s' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <BarChart3 className="w-5 h-5" />
@@ -149,9 +142,9 @@ export function EstadisticasDashboard() {
                 return (
                   <div key={item.estado} className="space-y-2">
                     <div className="flex items-center justify-between">
-                      <Badge className={getEstadoColor(item.estado)}>
+                      <span className={getEstadoClass(item.estado)}>
                         {item.estado.charAt(0).toUpperCase() + item.estado.slice(1).replace('_', ' ')}
-                      </Badge>
+                      </span>
                       <span className="text-sm font-medium">{item._count.estado} citas</span>
                     </div>
                     <Progress value={percentage} className="h-2" />
@@ -166,7 +159,7 @@ export function EstadisticasDashboard() {
         </Card>
 
         {/* Servicios más populares */}
-        <Card className="bg-white/80 backdrop-blur-sm">
+        <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-white/40 animate-card-fade-in" style={{ animationDelay: '0.6s' }}>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Star className="w-5 h-5" />
@@ -179,9 +172,9 @@ export function EstadisticasDashboard() {
           <CardContent>
             <div className="space-y-4">
               {stats.serviciosPopulares.map((servicio: any, index: number) => (
-                <div key={servicio.id} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+                <div key={servicio.id} className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-purple-50 to-pink-50">
                   <div className="flex items-center space-x-3">
-                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-pink-100 text-pink-600 text-sm font-bold">
+                    <div className="flex items-center justify-center w-8 h-8 rounded-full bg-gradient-primary text-white text-sm font-bold">
                       {index + 1}
                     </div>
                     <div>
@@ -201,7 +194,7 @@ export function EstadisticasDashboard() {
       </div>
 
       {/* Actividad de los últimos 7 días */}
-      <Card className="bg-white/80 backdrop-blur-sm">
+      <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-white/40 animate-card-fade-in" style={{ animationDelay: '0.7s' }}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <TrendingUp className="w-5 h-5" />
@@ -213,8 +206,8 @@ export function EstadisticasDashboard() {
         </CardHeader>
         <CardContent>
           <div className="space-y-4">
-            {stats.citasPorDia.map((dia: any) => (
-              <div key={dia.fecha} className="flex items-center justify-between p-3 rounded-lg bg-gray-50">
+            {stats.citasPorDia.map((dia: any, index: number) => (
+              <div key={dia.fecha} className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50">
                 <div>
                   <div className="font-medium">
                     {new Date(dia.fecha).toLocaleDateString('es-ES', { 
