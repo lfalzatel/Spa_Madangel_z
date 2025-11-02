@@ -21,21 +21,21 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-cyan-200 to-blue-300 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-pink-300 p-4 md:p-6">
       {/* Header */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-blue-800">
+              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
                 Spa Madangel
               </h1>
-              <p className="text-blue-700 mt-2">
+              <p className="text-pink-700 mt-2">
                 Sistema de Gestión de Uñas y Belleza
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-white/40 text-blue-800 backdrop-blur-sm border-blue-300">
+              <Badge variant="secondary" className="bg-white/40 text-pink-800 backdrop-blur-sm border-pink-300">
                 Administrador
               </Badge>
             </div>
