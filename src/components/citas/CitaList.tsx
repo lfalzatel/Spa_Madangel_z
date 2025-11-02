@@ -100,19 +100,20 @@ export function CitaList() {
     setIsFormOpen(true)
   }
 
-  const getEstadoColor = (estado: string) => {
-    const colors: { [key: string]: string } = {
-      'programada': 'bg-blue-100 text-blue-800',
-      'completada': 'bg-green-100 text-green-800',
-      'cancelada': 'bg-red-100 text-red-800',
-      'no_asistio': 'bg-orange-100 text-orange-800'
+  const getEstadoClass = (estado: string) => {
+    const badges: { [key: string]: string } = {
+      'programada': 'badge-pendiente',
+      'completada': 'badge-completada',
+      'cancelada': 'badge-cancelada',
+      'confirmada': 'badge-confirmada',
+      'no_asistio': 'badge-cancelada'
     }
-    return colors[estado] || 'bg-gray-100 text-gray-800'
+    return badges[estado] || 'badge-pendiente'
   }
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -124,7 +125,7 @@ export function CitaList() {
                 Administra las citas del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewCita} className="bg-pink-500 hover:bg-pink-600">
+            <Button onClick={handleNewCita} className="bg-gradient-primary text-white hover:shadow-lg transition-all">
               <Plus className="w-4 h-4 mr-2" />
               Nueva Cita
             </Button>
@@ -218,9 +219,9 @@ export function CitaList() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getEstadoColor(cita.estado)}>
+                        <span className={getEstadoClass(cita.estado)}>
                           {cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
-                        </Badge>
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
