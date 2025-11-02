@@ -21,21 +21,21 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-200 via-purple-200 to-pink-300 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 p-4 md:p-6">
       {/* Header */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
                 Spa Madangel
               </h1>
-              <p className="text-pink-700 mt-2">
+              <p className="text-blue-200 mt-2">
                 Sistema de Gestión de Uñas y Belleza
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-white/40 text-pink-800 backdrop-blur-sm border-pink-300">
+              <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur-sm border-white/30">
                 Administrador
               </Badge>
             </div>
@@ -103,38 +103,38 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
         <Tabs defaultValue="citas" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/20 backdrop-blur-md border border-white/30">
+          <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
             <TabsTrigger 
               value="citas" 
-              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
             >
               <Calendar className="w-4 h-4 mr-2" />
               Citas
             </TabsTrigger>
             <TabsTrigger 
               value="clientes" 
-              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
             >
               <Users className="w-4 h-4 mr-2" />
               Clientes
             </TabsTrigger>
             <TabsTrigger 
               value="empleados" 
-              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
             >
               <UserCheck className="w-4 h-4 mr-2" />
               Empleados
             </TabsTrigger>
             <TabsTrigger 
               value="servicios" 
-              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
             >
               <Package className="w-4 h-4 mr-2" />
               Servicios
             </TabsTrigger>
             <TabsTrigger 
               value="estadisticas" 
-              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
             >
               <TrendingUp className="w-4 h-4 mr-2" />
               Estadísticas
