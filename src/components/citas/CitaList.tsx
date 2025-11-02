@@ -13,7 +13,7 @@ export function CitaList() {
   const [citas, setCitas] = useState([])
   const [filteredCitas, setFilteredCitas] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
-  const [dateFilter, setDateFilter] = useState(new Date().toISOString().split('T')[0])
+  const [dateFilter, setDateFilter] = useState('') // Sin fecha por defecto
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedCita, setSelectedCita] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
@@ -149,6 +149,7 @@ export function CitaList() {
                 value={dateFilter}
                 onChange={(e) => setDateFilter(e.target.value)}
                 className="w-40"
+                placeholder="Filtrar por fecha"
               />
             </div>
           </div>
@@ -173,7 +174,11 @@ export function CitaList() {
                       <div className="flex flex-col items-center text-gray-500">
                         <Calendar className="w-12 h-12 mb-4 text-gray-400" />
                         <p>No se encontraron citas</p>
-                        <p className="text-sm">Programa tu primera cita para comenzar</p>
+                        <p className="text-sm">
+                          {dateFilter 
+                            ? 'No hay citas para la fecha seleccionada' 
+                            : 'Selecciona una fecha o programa tu primera cita'}
+                        </p>
                       </div>
                     </TableCell>
                   </TableRow>
