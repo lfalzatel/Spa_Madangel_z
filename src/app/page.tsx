@@ -21,21 +21,21 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-200 via-cyan-200 to-blue-300 p-4 md:p-6">
       {/* Header */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">
+              <h1 className="text-3xl md:text-4xl font-bold text-blue-800">
                 Spa Madangel
               </h1>
-              <p className="text-white/90 mt-2">
+              <p className="text-blue-700 mt-2">
                 Sistema de Gestión de Uñas y Belleza
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur-sm border-white/30">
+              <Badge variant="secondary" className="bg-white/40 text-blue-800 backdrop-blur-sm border-blue-300">
                 Administrador
               </Badge>
             </div>
@@ -103,7 +103,7 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
         <Tabs defaultValue="citas" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
+          <TabsList className="grid w-full grid-cols-5 bg-white/20 backdrop-blur-md border border-white/30">
             <TabsTrigger 
               value="citas" 
               className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
