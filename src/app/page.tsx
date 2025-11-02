@@ -4,8 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
-import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, Sparkles } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -20,116 +19,158 @@ export default function Home() {
     serviciosActivos: 0
   })
 
+  useEffect(() => {
+    fetchStats()
+  }, [])
+
+  const fetchStats = async () => {
+    try {
+      const response = await fetch('/api/stats')
+      if (response.ok) {
+        const data = await response.json()
+        setStats(data)
+      }
+    } catch (error) {
+      console.error('Error al cargar estadísticas:', error)
+    }
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
-      {/* Header */}
-      <header className="mb-8">
+    <div className="min-h-screen p-4 md:p-6">
+      {/* Header con gradiente */}
+      <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
-                Spa Madangel
-              </h1>
-              <p className="text-pink-600 mt-2">
-                Sistema de Gestión de Uñas y Belleza
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-pink-100 text-pink-800">
-                Administrador
-              </Badge>
+          <div className="bg-white/95 backdrop-blur-sm rounded-3xl p-6 shadow-2xl border border-white/20">
+            <div className="flex items-center justify-between flex-wrap gap-4">
+              <div className="flex items-center gap-4">
+                <div className="bg-gradient-purple p-4 rounded-2xl shadow-lg">
+                  <Sparkles className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl md:text-5xl font-bold gradient-text-purple">
+                    Spa Madangel
+                  </h1>
+                  <p className="text-gray-600 mt-1 font-medium text-lg">
+                    Sistema de Gestión de Uñas y Belleza
+                  </p>
+                </div>
+              </div>
+              <div className="flex items-center gap-3">
+                <Badge className="bg-gradient-purple text-white px-6 py-2 text-base font-semibold shadow-lg border-0">
+                  👑 Administrador
+                </Badge>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* Stats Cards con gradientes sólidos */}
       <div className="max-w-7xl mx-auto mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white/80 backdrop-blur-sm border-pink-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-pink-700">
-                Citas del Día
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-pink-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-pink-900">{stats.totalCitas}</div>
-              <p className="text-xs text-pink-600">
-                +2% respecto a ayer
-              </p>
-            </CardContent>
-          </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {/* Card 1 - Primary (Azul) */}
+          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-white/80 text-sm font-medium mb-1">Citas del Día</p>
+                <h3 className="text-4xl font-bold">{stats.totalCitas}</h3>
+              </div>
+              <div className="bg-white/20 p-3 rounded-xl">
+                <Calendar className="w-6 h-6" />
+              </div>
+            </div>
+            <p className="text-white/70 text-sm">
+              {stats.clientesHoy} clientes únicos
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-700">
-                Clientes Hoy
-              </CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-900">{stats.clientesHoy}</div>
-              <p className="text-xs text-purple-600">
-                +5% respecto a la semana pasada
-              </p>
-            </CardContent>
-          </Card>
+          {/* Card 2 - Success (Verde) */}
+          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-white/80 text-sm font-medium mb-1">Clientes Activos</p>
+                <h3 className="text-4xl font-bold">{stats.clientesHoy}</h3>
+              </div>
+              <div className="bg-white/20 p-3 rounded-xl">
+                <Users className="w-6 h-6" />
+              </div>
+            </div>
+            <p className="text-white/70 text-sm">
+              registrados este mes
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700">
-                Ingresos del Mes
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-900">${stats.ingresosMes}</div>
-              <p className="text-xs text-green-600">
-                +12% respecto al mes pasado
-              </p>
-            </CardContent>
-          </Card>
+          {/* Card 3 - Warning (Amarillo) */}
+          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-white/80 text-sm font-medium mb-1">Ingresos del Mes</p>
+                <h3 className="text-4xl font-bold">${stats.ingresosMes.toLocaleString()}</h3>
+              </div>
+              <div className="bg-white/20 p-3 rounded-xl">
+                <DollarSign className="w-6 h-6" />
+              </div>
+            </div>
+            <p className="text-white/70 text-sm">
+              +12% vs mes anterior
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-orange-700">
-                Servicios Activos
-              </CardTitle>
-              <Package className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-900">{stats.serviciosActivos}</div>
-              <p className="text-xs text-orange-600">
-                Todos disponibles
-              </p>
-            </CardContent>
-          </Card>
+          {/* Card 4 - Info (Cyan) */}
+          <div className="solid-card info animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="flex items-start justify-between mb-4">
+              <div>
+                <p className="text-white/80 text-sm font-medium mb-1">Servicios Activos</p>
+                <h3 className="text-4xl font-bold">{stats.serviciosActivos}</h3>
+              </div>
+              <div className="bg-white/20 p-3 rounded-xl">
+                <Package className="w-6 h-6" />
+              </div>
+            </div>
+            <p className="text-white/70 text-sm">
+              disponibles para reservar
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="max-w-7xl mx-auto">
+      {/* Tabs Principal */}
+      <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.5s' }}>
         <Tabs defaultValue="citas" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="citas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-              <Calendar className="w-4 h-4 mr-2" />
+          <TabsList className="bg-white/95 backdrop-blur-sm border border-white/20 p-2 h-auto flex-wrap gap-2 shadow-xl rounded-2xl">
+            <TabsTrigger 
+              value="citas" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+            >
+              <Calendar className="w-5 h-5 mr-2" />
               Citas
             </TabsTrigger>
-            <TabsTrigger value="clientes" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-              <Users className="w-4 h-4 mr-2" />
+            <TabsTrigger 
+              value="clientes" 
+              className="data-[state=active]:bg-gradient-success data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+            >
+              <Users className="w-5 h-5 mr-2" />
               Clientes
             </TabsTrigger>
-            <TabsTrigger value="empleados" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-              <UserCheck className="w-4 h-4 mr-2" />
+            <TabsTrigger 
+              value="empleados" 
+              className="data-[state=active]:bg-gradient-warning data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+            >
+              <UserCheck className="w-5 h-5 mr-2" />
               Empleados
             </TabsTrigger>
-            <TabsTrigger value="servicios" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-              <Package className="w-4 h-4 mr-2" />
+            <TabsTrigger 
+              value="servicios" 
+              className="data-[state=active]:bg-gradient-info data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+            >
+              <Package className="w-5 h-5 mr-2" />
               Servicios
             </TabsTrigger>
-            <TabsTrigger value="estadisticas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
-              <TrendingUp className="w-4 h-4 mr-2" />
+            <TabsTrigger 
+              value="estadisticas" 
+              className="data-[state=active]:bg-gradient-purple data-[state=active]:text-white data-[state=active]:shadow-lg transition-all duration-300 rounded-xl px-6 py-3 font-semibold"
+            >
+              <TrendingUp className="w-5 h-5 mr-2" />
               Estadísticas
             </TabsTrigger>
           </TabsList>
