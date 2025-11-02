@@ -21,21 +21,21 @@ export default function Home() {
   })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-[#667eea] to-[#764ba2] p-4 md:p-6">
       {/* Header */}
-      <header className="mb-8">
+      <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
+              <h1 className="text-3xl md:text-4xl font-bold text-white">
                 Spa Madangel
               </h1>
-              <p className="text-pink-600 mt-2">
+              <p className="text-white/90 mt-2">
                 Sistema de Gestión de Uñas y Belleza
               </p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-pink-100 text-pink-800">
+              <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur-sm border-white/30">
                 Administrador
               </Badge>
             </div>
@@ -43,92 +43,99 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Stats Cards */}
+      {/* Stats Cards - Usando las nuevas clases solid-card */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          <Card className="bg-white/80 backdrop-blur-sm border-pink-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-pink-700">
+          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
                 Citas del Día
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-pink-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-pink-900">{stats.totalCitas}</div>
-              <p className="text-xs text-pink-600">
-                +2% respecto a ayer
               </p>
-            </CardContent>
-          </Card>
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">{stats.totalCitas}</div>
+            <p className="text-xs text-white/70 mt-1">
+              +2% respecto a ayer
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-700">
+          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
                 Clientes Hoy
-              </CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-900">{stats.clientesHoy}</div>
-              <p className="text-xs text-purple-600">
-                +5% respecto a la semana pasada
               </p>
-            </CardContent>
-          </Card>
+              <Users className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">{stats.clientesHoy}</div>
+            <p className="text-xs text-white/70 mt-1">
+              +5% respecto a la semana pasada
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-green-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700">
+          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
                 Ingresos del Mes
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-900">${stats.ingresosMes}</div>
-              <p className="text-xs text-green-600">
-                +12% respecto al mes pasado
               </p>
-            </CardContent>
-          </Card>
+              <DollarSign className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">${stats.ingresosMes}</div>
+            <p className="text-xs text-white/70 mt-1">
+              +12% respecto al mes pasado
+            </p>
+          </div>
 
-          <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-orange-700">
+          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
                 Servicios Activos
-              </CardTitle>
-              <Package className="h-4 w-4 text-orange-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-orange-900">{stats.serviciosActivos}</div>
-              <p className="text-xs text-orange-600">
-                Todos disponibles
               </p>
-            </CardContent>
-          </Card>
+              <Package className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">{stats.serviciosActivos}</div>
+            <p className="text-xs text-white/70 mt-1">
+              Todos disponibles
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
         <Tabs defaultValue="citas" className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="citas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+          <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
+            <TabsTrigger 
+              value="citas" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Citas
             </TabsTrigger>
-            <TabsTrigger value="clientes" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="clientes" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
               <Users className="w-4 h-4 mr-2" />
               Clientes
             </TabsTrigger>
-            <TabsTrigger value="empleados" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="empleados" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
               <UserCheck className="w-4 h-4 mr-2" />
               Empleados
             </TabsTrigger>
-            <TabsTrigger value="servicios" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="servicios" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
               <Package className="w-4 h-4 mr-2" />
               Servicios
             </TabsTrigger>
-            <TabsTrigger value="estadisticas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="estadisticas" 
+              className="data-[state=active]:bg-gradient-primary data-[state=active]:text-white data-[state=active]:shadow-lg"
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Estadísticas
             </TabsTrigger>
