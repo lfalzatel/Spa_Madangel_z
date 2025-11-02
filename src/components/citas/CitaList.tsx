@@ -100,15 +100,29 @@ export function CitaList() {
     setIsFormOpen(true)
   }
 
+  // ✨ MEJORADO: Badges únicos para cada estado
   const getEstadoClass = (estado: string) => {
     const badges: { [key: string]: string } = {
       'programada': 'badge-pendiente',
       'completada': 'badge-completada',
       'cancelada': 'badge-cancelada',
       'confirmada': 'badge-confirmada',
-      'no_asistio': 'badge-cancelada'
+      'no_asistio': 'inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-500 text-white shadow-md' // Badge gris único
     }
     return badges[estado] || 'badge-pendiente'
+  }
+
+  // ✨ NUEVO: Formatear fecha con día de la semana
+  const formatearFechaConDia = (fecha: string) => {
+    const date = new Date(fecha)
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado']
+    const diaSemana = dias[date.getDay()]
+    const fechaFormateada = date.toLocaleDateString('es-ES')
+    
+    return {
+      diaSemana,
+      fecha: fechaFormateada
+    }
   }
 
   return (
@@ -125,7 +139,10 @@ export function CitaList() {
                 Administra las citas del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewCita} className="bg-gradient-primary text-white hover:shadow-lg transition-all">
+            <Button 
+              onClick={handleNewCita} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nueva Cita
             </Button>
@@ -183,72 +200,82 @@ export function CitaList() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredCitas.map((cita: any) => (
-                    <TableRow key={cita.id}>
-                      <TableCell>
-                        <div>
-                          <div className="flex items-center text-sm">
-                            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
-                            {new Date(cita.fecha).toLocaleDateString('es-ES')}
+                  filteredCitas.map((cita: any) => {
+                    const { diaSemana, fecha } = formatearFechaConDia(cita.fecha)
+                    
+                    return (
+                      <TableRow key={cita.id}>
+                        {/* ✨ MEJORADO: Fecha con día de la semana */}
+                        <TableCell>
+                          <div>
+                            <div className="flex items-center text-sm font-medium text-gray-800">
+                              <Calendar className="w-3 h-3 mr-1 text-gray-400" />
+                              {diaSemana}
+                            </div>
+                            <div className="text-sm text-gray-600">
+                              {fecha}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-500 mt-1">
+                              <Clock className="w-3 h-3 mr-1 text-gray-400" />
+                              {cita.horaInicio} - {cita.horaFin}
+                            </div>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Clock className="w-3 h-3 mr-1 text-gray-400" />
-                            {cita.horaInicio} - {cita.horaFin}
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <User className="w-3 h-3 mr-1 text-gray-400" />
+                            {cita.cliente.nombre} {cita.cliente.apellido}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <User className="w-3 h-3 mr-1 text-gray-400" />
-                          {cita.cliente.nombre} {cita.cliente.apellido}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center">
-                          <User className="w-3 h-3 mr-1 text-gray-400" />
-                          {cita.empleado.nombre} {cita.empleado.apellido}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">{cita.servicio.nombre}</div>
-                          <div className="text-sm text-gray-500">
-                            {cita.servicio.duracion} min
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center">
+                            <User className="w-3 h-3 mr-1 text-gray-400" />
+                            {cita.empleado.nombre} {cita.empleado.apellido}
                           </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center text-sm font-medium">
-                          <DollarSign className="w-3 h-3 mr-1 text-green-600" />
-                          {cita.total.toFixed(2)}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <span className={getEstadoClass(cita.estado)}>
-                          {cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1).replace('_', ' ')}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(cita)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(cita.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">{cita.servicio.nombre}</div>
+                            <div className="text-sm text-gray-500">
+                              {cita.servicio.duracion} min
+                            </div>
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center text-sm font-medium text-green-600">
+                            <DollarSign className="w-3 h-3 mr-1" />
+                            ${cita.total.toLocaleString('es-CO')}
+                          </div>
+                        </TableCell>
+                        <TableCell>
+                          <span className={getEstadoClass(cita.estado)}>
+                            {cita.estado === 'no_asistio' ? 'No Asistió' : 
+                             cita.estado.charAt(0).toUpperCase() + cita.estado.slice(1)}
+                          </span>
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(cita)}
+                              className="hover:bg-blue-50"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(cita.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
