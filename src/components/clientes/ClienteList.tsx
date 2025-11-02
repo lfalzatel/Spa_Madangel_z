@@ -111,7 +111,7 @@ export function ClienteList() {
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -123,7 +123,10 @@ export function ClienteList() {
                 Administra la base de datos de clientes del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewCliente} className="bg-pink-500 hover:bg-pink-600">
+            <Button 
+              onClick={handleNewCliente} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Cliente
             </Button>
@@ -204,16 +207,20 @@ export function ClienteList() {
                       </TableCell>
                       <TableCell>
                         {cliente.fechaNacimiento ? (
-                          <div className="flex items-center text-sm">
-                            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
-                            {calculateAge(cliente.fechaNacimiento)} años
+                          <div className="flex items-center">
+                            <span className="badge-confirmada">
+                              <Calendar className="w-3 h-3 mr-1" />
+                              {calculateAge(cliente.fechaNacimiento)} años
+                            </span>
                           </div>
                         ) : (
                           <span className="text-gray-400">No registrada</span>
                         )}
                       </TableCell>
                       <TableCell>
-                        {new Date(cliente.createdAt).toLocaleDateString('es-ES')}
+                        <span className="text-sm text-gray-600">
+                          {new Date(cliente.createdAt).toLocaleDateString('es-ES')}
+                        </span>
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
@@ -221,6 +228,7 @@ export function ClienteList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(cliente)}
+                            className="hover:bg-blue-50"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -228,7 +236,7 @@ export function ClienteList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(cliente.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
