@@ -96,24 +96,58 @@ export function ServicioList() {
     setIsFormOpen(true)
   }
 
-  const getCategoryColor = (categoria: string) => {
-    const colors: { [key: string]: string } = {
-      'Manicura': 'bg-pink-100 text-pink-800',
-      'Pedicura': 'bg-purple-100 text-purple-800',
-      'Uñas Acrílicas': 'bg-blue-100 text-blue-800',
-      'Uñas de Gel': 'bg-green-100 text-green-800',
-      'Arte en Uñas': 'bg-orange-100 text-orange-800',
-      'Spa de Manos': 'bg-cyan-100 text-cyan-800',
-      'Spa de Pies': 'bg-indigo-100 text-indigo-800',
-      'Tratamientos': 'bg-red-100 text-red-800',
-      'Otros': 'bg-gray-100 text-gray-800'
+  const getCategoryBadge = (categoria: string) => {
+    const badges: { [key: string]: { gradient: string, shadow: string } } = {
+      'Manicura': { 
+        gradient: 'bg-gradient-to-r from-pink-500 to-rose-500', 
+        shadow: 'shadow-pink-500/30' 
+      },
+      'Pedicura': { 
+        gradient: 'bg-gradient-to-r from-purple-500 to-indigo-500', 
+        shadow: 'shadow-purple-500/30' 
+      },
+      'Uñas Acrílicas': { 
+        gradient: 'bg-gradient-to-r from-blue-500 to-cyan-500', 
+        shadow: 'shadow-blue-500/30' 
+      },
+      'Uñas de Gel': { 
+        gradient: 'bg-gradient-to-r from-green-500 to-emerald-500', 
+        shadow: 'shadow-green-500/30' 
+      },
+      'Arte en Uñas': { 
+        gradient: 'bg-gradient-to-r from-orange-500 to-amber-500', 
+        shadow: 'shadow-orange-500/30' 
+      },
+      'Spa de Manos': { 
+        gradient: 'bg-gradient-to-r from-cyan-500 to-teal-500', 
+        shadow: 'shadow-cyan-500/30' 
+      },
+      'Spa de Pies': { 
+        gradient: 'bg-gradient-to-r from-indigo-500 to-blue-500', 
+        shadow: 'shadow-indigo-500/30' 
+      },
+      'Tratamientos': { 
+        gradient: 'bg-gradient-to-r from-red-500 to-pink-500', 
+        shadow: 'shadow-red-500/30' 
+      },
+      'Otros': { 
+        gradient: 'bg-gradient-to-r from-gray-500 to-slate-500', 
+        shadow: 'shadow-gray-500/30' 
+      }
     }
-    return colors[categoria] || 'bg-gray-100 text-gray-800'
+    
+    const style = badges[categoria] || badges['Otros']
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${style.gradient} text-white shadow-md ${style.shadow}`}>
+        <Tag className="w-3 h-3 mr-1" />
+        {categoria}
+      </span>
+    )
   }
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -125,7 +159,10 @@ export function ServicioList() {
                 Administra los servicios del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewServicio} className="bg-pink-500 hover:bg-pink-600">
+            <Button 
+              onClick={handleNewServicio} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Servicio
             </Button>
@@ -181,10 +218,7 @@ export function ServicioList() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge className={getCategoryColor(servicio.categoria)}>
-                          <Tag className="w-3 h-3 mr-1" />
-                          {servicio.categoria}
-                        </Badge>
+                        {getCategoryBadge(servicio.categoria)}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center text-sm">
@@ -193,15 +227,19 @@ export function ServicioList() {
                         </div>
                       </TableCell>
                       <TableCell>
-                        <div className="flex items-center text-sm font-medium">
-                          <DollarSign className="w-3 h-3 mr-1 text-green-600" />
+                        <div className="flex items-center text-sm font-medium text-green-600">
+                          <DollarSign className="w-3 h-3 mr-1" />
                           {servicio.precio.toFixed(2)}
                         </div>
                       </TableCell>
                       <TableCell>
-                        <Badge variant={servicio.activo ? "default" : "secondary"}>
-                          {servicio.activo ? "Activo" : "Inactivo"}
-                        </Badge>
+                        {servicio.activo ? (
+                          <span className="badge-completada">Activo</span>
+                        ) : (
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-400 text-white">
+                            Inactivo
+                          </span>
+                        )}
                       </TableCell>
                       <TableCell>
                         <div className="flex items-center space-x-2">
@@ -209,6 +247,7 @@ export function ServicioList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleEdit(servicio)}
+                            className="hover:bg-blue-50"
                           >
                             <Edit className="w-4 h-4" />
                           </Button>
@@ -216,7 +255,7 @@ export function ServicioList() {
                             variant="outline"
                             size="sm"
                             onClick={() => handleDelete(servicio.id)}
-                            className="text-red-600 hover:text-red-700"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
                           >
                             <Trash2 className="w-4 h-4" />
                           </Button>
