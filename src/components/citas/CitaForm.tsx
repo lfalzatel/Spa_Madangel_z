@@ -18,18 +18,44 @@ interface CitaFormProps {
 
 export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFormProps) {
   const [formData, setFormData] = useState({
-    clienteId: cita?.clienteId || '',
-    empleadoId: cita?.empleadoId || '',
-    servicioId: cita?.servicioId || '',
-    fecha: cita?.fecha ? new Date(cita.fecha).toISOString().split('T')[0] : '',
-    horaInicio: cita?.horaInicio || '',
-    notas: cita?.notas || '',
-    estado: cita?.estado || 'programada'
+    clienteId: '',
+    empleadoId: '',
+    servicioId: '',
+    fecha: '',
+    horaInicio: '',
+    notas: '',
+    estado: 'programada'
   })
 
   const [clientes, setClientes] = useState([])
   const [empleados, setEmpleados] = useState([])
   const [servicios, setServicios] = useState([])
+
+  // ✅ FIX 1: Cargar datos de la cita cuando el modal se abre para editar
+  useEffect(() => {
+    if (cita) {
+      setFormData({
+        clienteId: cita.clienteId || '',
+        empleadoId: cita.empleadoId || '',
+        servicioId: cita.servicioId || '',
+        fecha: cita.fecha ? new Date(cita.fecha).toISOString().split('T')[0] : '',
+        horaInicio: cita.horaInicio || '',
+        notas: cita.notas || '',
+        estado: cita.estado || 'programada'
+      })
+    } else {
+      // Si no hay cita (nueva cita), resetear el formulario
+      setFormData({
+        clienteId: '',
+        empleadoId: '',
+        servicioId: '',
+        fecha: '',
+        horaInicio: '',
+        notas: '',
+        estado: 'programada'
+      })
+    }
+  }, [cita, isOpen]) // Se ejecuta cuando cambia la cita o cuando se abre el modal
 
   useEffect(() => {
     fetchClientes()
@@ -157,7 +183,8 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
                 type="date"
                 value={formData.fecha}
                 onChange={(e) => handleChange('fecha', e.target.value)}
-                min={new Date().toISOString().split('T')[0]}
+                // ✅ FIX 2: Solo aplica min cuando es una cita NUEVA (no al editar)
+                min={!cita ? new Date().toISOString().split('T')[0] : undefined}
                 required
               />
             </div>
@@ -187,6 +214,7 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="programada">Programada</SelectItem>
+                  <SelectItem value="confirmada">Confirmada</SelectItem>
                   <SelectItem value="completada">Completada</SelectItem>
                   <SelectItem value="cancelada">Cancelada</SelectItem>
                   <SelectItem value="no_asistio">No Asistió</SelectItem>
@@ -210,7 +238,11 @@ export function CitaForm({ isOpen, onClose, onSubmit, cita, isLoading }: CitaFor
             <Button type="button" variant="outline" onClick={onClose}>
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading}>
+            <Button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               {isLoading ? 'Guardando...' : (cita ? 'Actualizar' : 'Crear')}
             </Button>
           </DialogFooter>
