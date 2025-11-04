@@ -214,7 +214,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
             </CardContent>
           </Card>
            {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
-          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }} onClick={() => handleCardClick('canceladas')>
+          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }} onClick={() => handleCardClick('canceladas')}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
                 Ingresos del Mes
