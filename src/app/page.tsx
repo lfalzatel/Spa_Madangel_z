@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness, XCircle } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness, XCircle  } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -14,15 +14,18 @@ import { EstadisticasDashboard } from '@/components/estadisticas/EstadisticasDas
 
 export default function Home() {
   const [stats, setStats] = useState({
-    citasHoy: 0,
-    citasPendientes: 0,
-    citasCompletadas: 0,
-    serviciosActivos: 0
-  })
-  const [isLoading, setIsLoading] = useState(true)
-  const [activeTab, setActiveTab] = useState('citas')
-  // Estado para controlar el modal de nueva cita
-  const [triggerNewCita, setTriggerNewCita] = useState(0)
+  citasHoy: 0,
+  citasPendientes: 0,
+  citasCompletadas: 0,
+  serviciosActivos: 0
+})
+const [isLoading, setIsLoading] = useState(true)
+const [activeTab, setActiveTab] = useState('citas')
+// Estado para controlar el modal de nueva cita
+const [triggerNewCita, setTriggerNewCita] = useState(0)
+const [triggerNewCita, setTriggerNewCita] = useState(0)
+const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
+  
 
   useEffect(() => {
     fetchStats()
@@ -93,6 +96,10 @@ export default function Home() {
     // Incrementar para trigger el modal
     setTriggerNewCita(prev => prev + 1)
   }
+const handleCardClick = (filterType) => {
+  setCitaFilter(filterType)
+  setActiveTab('citas')
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
