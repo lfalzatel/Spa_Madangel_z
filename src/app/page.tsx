@@ -147,20 +147,22 @@ export default function Home() {
       {/* Stats Cards - CLICKEABLES */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
+         {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
           <Card 
             className="bg-white/80 backdrop-blur-sm border-pink-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('hoy')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-pink-700">
-                Citas del Día
+            onClick={() => handleCardClick('hoy')}>
+            <CardHeader className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
+              <CardTitle className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <p className="text-sm font-medium text-white/80">
+                Citas de Hoy</p>
               </CardTitle>
-              <Calendar className="h-4 w-4 text-pink-600" />
+              <Calendar className="h-5 w-5 text-white" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
-              <p className="text-xs text-pink-600">
+              <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasHoy}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
                 Click para ver las citas de hoy
               </p>
             </CardContent>
