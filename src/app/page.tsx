@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness, XCircle } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
