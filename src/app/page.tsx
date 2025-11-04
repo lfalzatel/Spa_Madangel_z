@@ -235,7 +235,7 @@ const handleCardClick = (filterType) => {
             </CardContent>
           </Card>
           {/* 5. CITAS COMPLETADAS DEL MES */}
-          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
+          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' } }onClick={() => handleCardClick('completadas')}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
                 Citas Completadas
