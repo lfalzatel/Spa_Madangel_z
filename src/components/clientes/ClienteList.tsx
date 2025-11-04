@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ClienteForm } from './ClienteForm'
-import { Search, Plus, Edit, Trash2, User, Mail, Phone, MapPin, Calendar, Sparkles } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, User, Mail, Phone, Calendar, Sparkles } from 'lucide-react'
 
 export function ClienteList() {
   const [clientes, setClientes] = useState([])
@@ -230,7 +230,7 @@ export function ClienteList() {
 
                     return (
                       <TableRow key={cliente.id}>
-                        {/* COLUMNA 1: CLIENTE */}
+                        {/* COLUMNA 1: CLIENTE (simplificada - sin dirección) */}
                         <TableCell>
                           <div>
                             <div className="font-medium">
@@ -244,7 +244,7 @@ export function ClienteList() {
                           </div>
                         </TableCell>
 
-                        {/* COLUMNA 2: CONTACTO (Email + Teléfono + Dirección) */}
+                        {/* COLUMNA 2: CONTACTO (solo Email y Teléfono - sin dirección) */}
                         <TableCell>
                           <div className="space-y-1">
                             <div className="flex items-center text-sm text-gray-600">
@@ -255,12 +255,6 @@ export function ClienteList() {
                               <Phone className="w-3 h-3 mr-1 text-gray-400" />
                               {cliente.telefono}
                             </div>
-                            {cliente.direccion && (
-                              <div className="flex items-center text-sm text-gray-600">
-                                <MapPin className="w-3 h-3 mr-1 text-gray-400" />
-                                <span className="truncate max-w-xs">{cliente.direccion}</span>
-                              </div>
-                            )}
                           </div>
                         </TableCell>
 
@@ -327,6 +321,10 @@ export function ClienteList() {
         </CardContent>
       </Card>
 
+      {/* 🔧 NOTA: El ClienteForm debe actualizarse para QUITAR los campos:
+          - Dirección
+          - Fecha de nacimiento
+          Estos datos no son relevantes para clientes */}
       <ClienteForm
         isOpen={isFormOpen}
         onClose={() => {
