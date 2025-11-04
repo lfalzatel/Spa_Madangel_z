@@ -4,15 +4,18 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
+import { Badge } from '@/components/ui/badge'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { CitaForm } from './CitaForm'
-import { Search, Edit, Trash2, Calendar, Clock, User, DollarSign, Filter, AlertCircle, CalendarClock, History } from 'lucide-react'
+import { Search, Edit, Trash2, Calendar, Clock, User, DollarSign, Filter, AlertCircle, CalendarClock, History, X } from 'lucide-react'
 
 interface CitaListProps {
-  triggerNewCita?: number  // Trigger desde el header
+  triggerNewCita?: number
+  filterType?: string | null  // 'hoy', 'canceladas', 'completadas'
+  onClearFilter?: () => void
 }
 
-export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
+export function CitaList({ triggerNewCita = 0, filterType = null, onClearFilter }: CitaListProps) {
   const [citas, setCitas] = useState([])
   const [searchTerm, setSearchTerm] = useState('')
   const [dateFilter, setDateFilter] = useState('')
@@ -24,7 +27,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
     fetchCitas()
   }, [dateFilter])
 
-  // Escuchar el trigger del botón del header
   useEffect(() => {
     if (triggerNewCita > 0) {
       handleNewCita()
@@ -122,12 +124,12 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
     }
   }
 
-  // 🔧 FUNCIÓN: Separar citas en próximas e historial
-  const separarCitas = () => {
+  // 🔥 FUNCIÓN: Filtrar citas según el tipo
+  const filtrarCitasPorTipo = () => {
     const ahora = new Date()
-    ahora.setHours(0, 0, 0, 0) // Resetear a medianoche para comparar solo fechas
+    ahora.setHours(0, 0, 0, 0)
     
-    // Filtrar por búsqueda
+    // Filtrar por búsqueda primero
     let citasFiltradas = citas.filter(cita =>
       cita.cliente.nombre.toLowerCase().includes(searchTerm.toLowerCase()) ||
       cita.cliente.apellido.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -136,42 +138,79 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
       cita.servicio.nombre.toLowerCase().includes(searchTerm.toLowerCase())
     )
 
-    const proximas = citasFiltradas.filter(cita => {
-      const fechaCita = new Date(cita.fecha.split('T')[0])
-      return fechaCita >= ahora
-    }).sort((a, b) => {
-      // Ordenar de más próxima a más lejana
-      const fechaA = new Date(a.fecha)
-      const fechaB = new Date(b.fecha)
-      return fechaA.getTime() - fechaB.getTime()
-    })
+    // Aplicar filtro por tipo si existe
+    if (filterType === 'hoy') {
+      // Mostrar solo citas de hoy
+      const hoyStr = ahora.toISOString().split('T')[0]
+      citasFiltradas = citasFiltradas.filter(cita => 
+        cita.fecha.split('T')[0] === hoyStr
+      )
+    } else if (filterType === 'canceladas') {
+      // Mostrar canceladas y no_asistio
+      citasFiltradas = citasFiltradas.filter(cita => 
+        cita.estado === 'cancelada' || cita.estado === 'no_asistio'
+      )
+    } else if (filterType === 'completadas') {
+      // Mostrar solo completadas
+      citasFiltradas = citasFiltradas.filter(cita => 
+        cita.estado === 'completada'
+      )
+    }
 
-    const historial = citasFiltradas.filter(cita => {
-      const fechaCita = new Date(cita.fecha.split('T')[0])
-      return fechaCita < ahora
-    }).sort((a, b) => {
-      // Ordenar de más reciente a más antigua
-      const fechaA = new Date(a.fecha)
-      const fechaB = new Date(b.fecha)
-      return fechaB.getTime() - fechaA.getTime()
-    })
+    // Separar en próximas e historial si no hay filtro específico
+    if (!filterType) {
+      const proximas = citasFiltradas.filter(cita => {
+        const fechaCita = new Date(cita.fecha.split('T')[0])
+        return fechaCita >= ahora
+      }).sort((a, b) => new Date(a.fecha).getTime() - new Date(b.fecha).getTime())
 
-    return { proximas, historial }
+      const historial = citasFiltradas.filter(cita => {
+        const fechaCita = new Date(cita.fecha.split('T')[0])
+        return fechaCita < ahora
+      }).sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+
+      return { proximas, historial, filtered: null }
+    } else {
+      // Si hay filtro, ordenar por fecha más reciente
+      citasFiltradas.sort((a, b) => new Date(b.fecha).getTime() - new Date(a.fecha).getTime())
+      return { proximas: [], historial: [], filtered: citasFiltradas }
+    }
   }
 
-  const { proximas, historial } = separarCitas()
+  const { proximas, historial, filtered } = filtrarCitasPorTipo()
+
+  // Determinar el título según el filtro
+  const getTituloFiltro = () => {
+    if (filterType === 'hoy') return 'Citas del Día'
+    if (filterType === 'canceladas') return 'Citas Canceladas y No Asistió'
+    if (filterType === 'completadas') return 'Citas Completadas'
+    return null
+  }
 
   // Componente de tabla reutilizable
-  const TablasCitas = ({ citas, titulo, icono }: { citas: any[], titulo: string, icono: React.ReactNode }) => (
+  const TablaCitas = ({ citas, titulo, icono }: { citas: any[], titulo: string, icono: React.ReactNode }) => (
     <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          {icono}
-          {titulo}
-          <span className="ml-2 text-sm font-normal text-gray-500">
-            ({citas.length} {citas.length === 1 ? 'cita' : 'citas'})
-          </span>
-        </CardTitle>
+        <div className="flex items-center justify-between">
+          <CardTitle className="flex items-center gap-2">
+            {icono}
+            {titulo}
+            <span className="ml-2 text-sm font-normal text-gray-500">
+              ({citas.length} {citas.length === 1 ? 'cita' : 'citas'})
+            </span>
+          </CardTitle>
+          {filterType && onClearFilter && (
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={onClearFilter}
+              className="text-gray-600 hover:text-gray-900"
+            >
+              <X className="w-4 h-4 mr-1" />
+              Limpiar filtro
+            </Button>
+          )}
+        </div>
       </CardHeader>
       <CardContent>
         <div className="rounded-lg border border-gray-200 overflow-hidden">
@@ -195,9 +234,9 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                       <Calendar className="w-16 h-16 mb-4 text-gray-300" />
                       <p className="text-lg font-medium">No hay citas</p>
                       <p className="text-sm mt-2">
-                        {titulo === 'Próximas Citas' 
-                          ? 'No hay citas programadas próximamente' 
-                          : 'No hay historial de citas'}
+                        {filterType 
+                          ? `No hay citas ${getTituloFiltro()?.toLowerCase()}` 
+                          : 'No hay citas en esta categoría'}
                       </p>
                     </div>
                   </TableCell>
@@ -211,7 +250,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                   
                   return (
                     <TableRow key={cita.id} className="hover:bg-gray-50 transition-colors">
-                      {/* Fecha y Hora */}
                       <TableCell className="font-medium">
                         <div className="space-y-1">
                           <div className="flex items-center text-sm text-gray-900">
@@ -228,7 +266,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </div>
                       </TableCell>
 
-                      {/* Cliente */}
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-pink-100 flex items-center justify-center">
@@ -240,7 +277,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </div>
                       </TableCell>
 
-                      {/* Empleado */}
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
@@ -252,7 +288,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </div>
                       </TableCell>
 
-                      {/* Servicio */}
                       <TableCell>
                         <div>
                           <div className="font-medium text-gray-900">{cita.servicio.nombre}</div>
@@ -262,7 +297,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </div>
                       </TableCell>
 
-                      {/* Precio ACTUAL del servicio */}
                       <TableCell>
                         <div className="flex items-center gap-2">
                           <div className="flex items-center text-base font-semibold text-green-600">
@@ -283,7 +317,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </div>
                       </TableCell>
 
-                      {/* Estado */}
                       <TableCell>
                         <span className={getEstadoClass(cita.estado)}>
                           {cita.estado === 'no_asistio' ? 'No Asistió' : 
@@ -291,7 +324,6 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
                         </span>
                       </TableCell>
 
-                      {/* Acciones */}
                       <TableCell>
                         <div className="flex items-center justify-end gap-2">
                           <Button
@@ -325,7 +357,7 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
 
   return (
     <div className="space-y-6">
-      {/* Barra de búsqueda y filtros */}
+      {/* Barra de búsqueda */}
       <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardContent className="pt-6">
           <div className="flex items-center space-x-3">
@@ -351,19 +383,27 @@ export function CitaList({ triggerNewCita = 0 }: CitaListProps) {
         </CardContent>
       </Card>
 
-      {/* 🔥 SECCIÓN: PRÓXIMAS CITAS */}
-      <TablasCitas 
-        citas={proximas} 
-        titulo="Próximas Citas" 
-        icono={<CalendarClock className="w-5 h-5 text-blue-500" />}
-      />
-
-      {/* 🔥 SECCIÓN: HISTORIAL */}
-      <TablasCitas 
-        citas={historial} 
-        titulo="Historial" 
-        icono={<History className="w-5 h-5 text-gray-500" />}
-      />
+      {/* Mostrar citas filtradas o divididas */}
+      {filtered ? (
+        <TablaCitas 
+          citas={filtered} 
+          titulo={getTituloFiltro() || 'Citas'} 
+          icono={<CalendarClock className="w-5 h-5 text-blue-500" />}
+        />
+      ) : (
+        <>
+          <TablaCitas 
+            citas={proximas} 
+            titulo="Próximas Citas" 
+            icono={<CalendarClock className="w-5 h-5 text-blue-500" />}
+          />
+          <TablaCitas 
+            citas={historial} 
+            titulo="Historial" 
+            icono={<History className="w-5 h-5 text-gray-500" />}
+          />
+        </>
+      )}
 
       <CitaForm
         isOpen={isFormOpen}
