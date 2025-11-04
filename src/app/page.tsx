@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, Plus, CalendarPlus, UserPlus, Briefcase } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, Briefcase } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -21,6 +21,8 @@ export default function Home() {
   })
   const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('citas')
+  // Estado para controlar el modal de nueva cita
+  const [triggerNewCita, setTriggerNewCita] = useState(0)
 
   useEffect(() => {
     fetchStats()
@@ -82,26 +84,19 @@ export default function Home() {
     }
   }
 
-  // Función para obtener el botón de acción según el tab activo
-  const getActionButton = () => {
-    const buttons = {
-      citas: {
-        label: 'Nueva Cita',
-        icon: <CalendarPlus className="w-4 h-4 mr-2" />,
-        onClick: () => {/* Trigger nueva cita */}
-      },
-      
-      estadisticas: null
+  // Función para abrir modal de nueva cita
+  const handleNuevaCita = () => {
+    // Cambiar a tab de citas si no está ahí
+    if (activeTab !== 'citas') {
+      setActiveTab('citas')
     }
-
-    return buttons[activeTab as keyof typeof buttons]
+    // Incrementar para trigger el modal
+    setTriggerNewCita(prev => prev + 1)
   }
-
-  const actionButton = getActionButton()
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 p-4 md:p-6">
-      {/* 🆕 HEADER PRINCIPAL MODERNO */}
+      {/* HEADER PRINCIPAL MODERNO */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-8 shadow-2xl">
@@ -125,7 +120,7 @@ export default function Home() {
                 </div>
               </div>
               
-              {/* Badge y botón de acción */}
+              {/* Badge y botón Nueva Cita FIJO */}
               <div className="flex items-center gap-3">
                 <Badge 
                   variant="secondary" 
@@ -134,17 +129,15 @@ export default function Home() {
                   Administrador
                 </Badge>
                 
-                {/* Botón de acción contextual */}
-                {actionButton && (
-                  <Button 
-                    onClick={actionButton.onClick}
-                    size="lg"
-                    className="bg-white text-pink-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
-                  >
-                    {actionButton.icon}
-                    {actionButton.label}
-                  </Button>
-                )}
+                {/* BOTÓN NUEVA CITA - SIEMPRE VISIBLE */}
+                <Button 
+                  onClick={handleNuevaCita}
+                  size="lg"
+                  className="bg-white text-pink-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                >
+                  <CalendarPlus className="w-5 h-5 mr-2" />
+                  Nueva Cita
+                </Button>
               </div>
             </div>
           </div>
@@ -223,9 +216,9 @@ export default function Home() {
       {/* Main Content */}
       <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
         <Tabs 
-          defaultValue="citas" 
+          value={activeTab}
+          onValueChange={setActiveTab}
           className="space-y-6"
-          onValueChange={(value) => setActiveTab(value)}
         >
           <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
             <TabsTrigger 
@@ -266,7 +259,7 @@ export default function Home() {
           </TabsList>
 
           <TabsContent value="citas" className="space-y-4">
-            <CitaList />
+            <CitaList triggerNewCita={triggerNewCita} />
           </TabsContent>
 
           <TabsContent value="clientes" className="space-y-4">
