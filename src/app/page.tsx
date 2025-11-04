@@ -22,10 +22,9 @@ export default function Home() {
 })
 const [isLoading, setIsLoading] = useState(true)
 const [activeTab, setActiveTab] = useState('citas')
-const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
 // Estado para controlar el modal de nueva cita
 const [triggerNewCita, setTriggerNewCita] = useState(0)
-
+const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
   
 
   useEffect(() => {
@@ -78,7 +77,6 @@ const [triggerNewCita, setTriggerNewCita] = useState(0)
       setStats({
         citasHoy,
         citasPendientes,
-        citasCanceladas,
         ingresosMes,
         citasCompletadasMes,
         citasCanceladas: citas.filter((cita: any) => cita.estado === 'cancelada').length
@@ -200,6 +198,25 @@ const [triggerNewCita, setTriggerNewCita] = useState(0)
             </p>
           </div>
           </Card>
+
+          {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
+          <Card 
+            className="bg-white/80 backdrop-blur-sm border-red-200 cursor-pointer hover:shadow-lg transition-all"
+            onClick={() => handleCardClick('canceladas')}
+          >
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium text-red-700">
+                Citas Canceladas
+              </CardTitle>
+              <XCircle className="h-4 w-4 text-red-600" />
+            </CardHeader>
+            <CardContent>
+              <div className="text-2xl font-bold text-red-900">{stats.citasCanceladas}</div>
+              <p className="text-xs text-red-600">
+                Click para ver cancelaciones
+              </p>
+            </CardContent>
+          </Card>
            {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
           <div
             className="solid-card success animate-stats-fade-in"
@@ -210,7 +227,7 @@ const [triggerNewCita, setTriggerNewCita] = useState(0)
               <p className="text-sm font-medium text-white/80">
                 Citas canceladas
               </p>
-              <XCircle className="h-4 w-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-white-600" />
             </div>
             <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasCanceladas}
@@ -265,7 +282,7 @@ const [triggerNewCita, setTriggerNewCita] = useState(0)
           </TabsList>
 
           <TabsContent value="citas" className="space-y-4">
-            <CitaList filterType={citaFilter} onClearFilter={() => setCitaFilter(null)} />
+            <CitaList filterType={citaFilter} onClearFilter={() => setCitaFilter(null)} triggerNewCita={triggerNewCita} />
           </TabsContent>
 
           <TabsContent value="clientes" className="space-y-4">
