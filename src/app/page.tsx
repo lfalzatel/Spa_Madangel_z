@@ -22,9 +22,10 @@ export default function Home() {
 })
 const [isLoading, setIsLoading] = useState(true)
 const [activeTab, setActiveTab] = useState('citas')
+const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
 // Estado para controlar el modal de nueva cita
 const [triggerNewCita, setTriggerNewCita] = useState(0)
-const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
+
   
 
   useEffect(() => {
@@ -77,6 +78,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
       setStats({
         citasHoy,
         citasPendientes,
+        citasCanceladas,
         ingresosMes,
         citasCompletadasMes,
         citasCanceladas: citas.filter((cita: any) => cita.estado === 'cancelada').length
@@ -198,8 +200,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
             </p>
           </div>
           </Card>
-
-          {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
+           {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
           <div
             className="solid-card success animate-stats-fade-in"
             style={{ animationDelay: '0.3s' }}
