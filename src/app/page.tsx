@@ -168,7 +168,7 @@ const handleCardClick = (filterType) => {
               <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasHoy}
             </div>
-            <p className="text-xs text-white/70 mt-1">
+            <p className="text-xs text-blue/70 mt-1">
                 Click para ver las citas de hoy
               </p>
             </CardContent>
