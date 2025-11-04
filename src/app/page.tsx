@@ -90,21 +90,7 @@ export default function Home() {
         icon: <CalendarPlus className="w-4 h-4 mr-2" />,
         onClick: () => {/* Trigger nueva cita */}
       },
-      clientes: {
-        label: 'Nuevo Cliente',
-        icon: <UserPlus className="w-4 h-4 mr-2" />,
-        onClick: () => {/* Trigger nuevo cliente */}
-      },
-      empleados: {
-        label: 'Nuevo Empleado',
-        icon: <UserPlus className="w-4 h-4 mr-2" />,
-        onClick: () => {/* Trigger nuevo empleado */}
-      },
-      servicios: {
-        label: 'Nuevo Servicio',
-        icon: <Plus className="w-4 h-4 mr-2" />,
-        onClick: () => {/* Trigger nuevo servicio */}
-      },
+      
       estadisticas: null
     }
 
