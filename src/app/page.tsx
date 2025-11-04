@@ -97,10 +97,10 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
     // Incrementar para trigger el modal
     setTriggerNewCita(prev => prev + 1)
   }
-const handleCardClick = (filterType) => {
-  setCitaFilter(filterType)
-  setActiveTab('citas')
-}
+  const handleCardClick = (filterType) => {
+    setCitaFilter(filterType)
+    setActiveTab('citas')
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
