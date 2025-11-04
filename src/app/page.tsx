@@ -167,6 +167,10 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               <Calendar className="h-5 w-5 text-white" />
             </CardHeader>
             <CardContent>
+              <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
+              <p className="text-xs text-pink-600">
+                Click para ver las citas de hoy
+              </p>
               <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasHoy}
             </div>
