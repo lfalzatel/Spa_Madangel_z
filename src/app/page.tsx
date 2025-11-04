@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, Briefcase } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -108,7 +108,7 @@ export default function Home() {
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
-                  <Briefcase className="w-10 h-10 text-white" />
+                  <BriefcaseBusiness className="w-10 h-10 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold text-white mb-1">
