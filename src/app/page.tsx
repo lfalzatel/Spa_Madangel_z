@@ -16,13 +16,14 @@ export default function Home() {
   const [stats, setStats] = useState({
     citasHoy: 0,
     clientesHoy: 0,
-    citasCanceladas: 0,
+    citasPendientes: 0,
     citasCompletadas: 0,
     serviciosActivos: 0
   })
 
   const [activeTab, setActiveTab] = useState('citas')
   const [citaFilter, setCitaFilter] = useState<string | null>(null)
+  const [triggerNewCita, setTriggerNewCita] = useState(0)
 
   useEffect(() => {
     fetchStats()
@@ -35,7 +36,7 @@ export default function Home() {
       setStats({
         citasHoy: data.citasHoy || 0,
         clientesHoy: data.clientesHoy || 0,
-        citasCanceladas: data.citasCanceladas || 0,
+        citasPendientes: data.citasPendientes || 0,
         citasCompletadas: data.citasCompletadas || 0,
         serviciosActivos: data.serviciosActivos || 0
       })
@@ -65,6 +66,10 @@ export default function Home() {
               </p>
             </div>
             <div className="flex items-center gap-2">
+            <button onclick="{handleNewCita}" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all">
+                <plus class="w-4 h-4 mr-2">
+                Nueva Cita
+              </plus></button>
               <Badge variant="secondary" className="bg-pink-100 text-pink-800">
                 Administrador
               </Badge>
@@ -96,19 +101,20 @@ export default function Home() {
           </Card>
 
           {/* Tarjeta 2: Clientes Hoy */}
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-purple-700">
-                Clientes Hoy
-              </CardTitle>
-              <Users className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-purple-900">{stats.clientesHoy}</div>
-              <p className="text-xs text-purple-600">
-                Clientes únicos del día
+          <Card className="bg-white/80 backdrop-blur-sm border-purple-200 cursor-pointer hover:shadow-lg transition-all"  
+          onClick={() => handleCardClick('pendientes')}>
+            <cardheader class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <cardtitle class="text-sm font-medium text-purple-700">
+                Citas Pendientes
+              </cardtitle>
+              <clock class="h-4 w-4 text-purple-600">
+            </clock></cardheader>
+            <cardcontent>
+              <div class="text-2xl font-bold text-purple-900">{stats.citasPendientes}</div>
+              <p class="text-xs text-purple-600">
+                Click para ver citas pendientes
               </p>
-            </CardContent>
+            </cardcontent>
           </Card>
 
           {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
