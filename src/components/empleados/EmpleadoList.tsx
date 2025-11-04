@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { EmpleadoForm } from './EmpleadoForm'
-import { Search, Plus, Edit, Trash2, User, Mail, Phone, Star, MapPin, Calendar, Cake } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, User, Mail, Phone, Star, MapPin, Cake, Calendar } from 'lucide-react'
 
 export function EmpleadoList() {
   const [empleados, setEmpleados] = useState([])
@@ -113,6 +113,102 @@ export function EmpleadoList() {
     return edad
   }
 
+  // 🎂 FUNCIÓN: Calcular días hasta el próximo cumpleaños
+  const calcularDiasHastaCumpleanos = (fechaNacimiento: string) => {
+    if (!fechaNacimiento) return null
+
+    const hoy = new Date()
+    const nacimiento = new Date(fechaNacimiento)
+    
+    // Cumpleaños de este año
+    const cumpleañosEsteAño = new Date(hoy.getFullYear(), nacimiento.getMonth(), nacimiento.getDate())
+    
+    // Si el cumpleaños ya pasó este año, calcular para el próximo año
+    if (cumpleañosEsteAño < hoy) {
+      cumpleañosEsteAño.setFullYear(hoy.getFullYear() + 1)
+    }
+    
+    // Calcular días
+    const diffTime = cumpleañosEsteAño.getTime() - hoy.getTime()
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+    
+    return diffDays
+  }
+
+  // 📝 FUNCIÓN: Formatear mensaje de cumpleaños
+  const formatearMensajeCumpleanos = (dias: number) => {
+    if (dias === 0) return '¡Hoy es su cumpleaños! 🎉'
+    if (dias === 1) return 'Cumpleaños mañana'
+    if (dias <= 7) return `Cumpleaños en ${dias} días`
+    if (dias <= 30) return `Cumpleaños en ${dias} días`
+    if (dias <= 60) return `Cumpleaños en ~${Math.round(dias / 7)} semanas`
+    
+    const meses = Math.round(dias / 30)
+    return `Cumpleaños en ~${meses} ${meses === 1 ? 'mes' : 'meses'}`
+  }
+
+  // 🎨 FUNCIÓN: Obtener colores para especialidades (como categorías de servicios)
+  const getEspecialidadBadge = (especialidad: string) => {
+    const badges: { [key: string]: { gradient: string, shadow: string } } = {
+      'Manicura': { 
+        gradient: 'bg-gradient-to-r from-pink-500 to-rose-500', 
+        shadow: 'shadow-pink-500/30' 
+      },
+      'Pedicura': { 
+        gradient: 'bg-gradient-to-r from-purple-500 to-indigo-500', 
+        shadow: 'shadow-purple-500/30' 
+      },
+      'Uñas Acrílicas': { 
+        gradient: 'bg-gradient-to-r from-blue-500 to-cyan-500', 
+        shadow: 'shadow-blue-500/30' 
+      },
+      'Uñas de Gel': { 
+        gradient: 'bg-gradient-to-r from-green-500 to-emerald-500', 
+        shadow: 'shadow-green-500/30' 
+      },
+      'Arte en Uñas': { 
+        gradient: 'bg-gradient-to-r from-orange-500 to-amber-500', 
+        shadow: 'shadow-orange-500/30' 
+      },
+      'Spa de Manos': { 
+        gradient: 'bg-gradient-to-r from-cyan-500 to-teal-500', 
+        shadow: 'shadow-cyan-500/30' 
+      },
+      'Spa de Pies': { 
+        gradient: 'bg-gradient-to-r from-indigo-500 to-blue-500', 
+        shadow: 'shadow-indigo-500/30' 
+      },
+      'Tratamientos': { 
+        gradient: 'bg-gradient-to-r from-red-500 to-pink-500', 
+        shadow: 'shadow-red-500/30' 
+      },
+      'Diseño': { 
+        gradient: 'bg-gradient-to-r from-yellow-500 to-orange-500', 
+        shadow: 'shadow-yellow-500/30' 
+      },
+      'Masajes': { 
+        gradient: 'bg-gradient-to-r from-teal-500 to-green-500', 
+        shadow: 'shadow-teal-500/30' 
+      },
+      'Todos': { 
+        gradient: 'bg-gradient-to-r from-purple-600 to-pink-600', 
+        shadow: 'shadow-purple-500/30' 
+      },
+      'General': { 
+        gradient: 'bg-gradient-to-r from-gray-500 to-slate-500', 
+        shadow: 'shadow-gray-500/30' 
+      }
+    }
+    
+    const style = badges[especialidad] || badges['General']
+    return (
+      <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${style.gradient} text-white shadow-md ${style.shadow}`}>
+        <Star className="w-3 h-3 mr-1" />
+        {especialidad}
+      </span>
+    )
+  }
+
   return (
     <div className="space-y-6">
       <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
@@ -177,6 +273,7 @@ export function EmpleadoList() {
                 ) : (
                   filteredEmpleados.map((empleado: any) => {
                     const edad = calcularEdad(empleado.fechaNacimiento)
+                    const diasCumpleanos = calcularDiasHastaCumpleanos(empleado.fechaNacimiento)
                     
                     return (
                       <TableRow key={empleado.id}>
@@ -189,7 +286,7 @@ export function EmpleadoList() {
                           </div>
                         </TableCell>
 
-                        {/* COLUMNA 2: CONTACTO (Email + Teléfono) */}
+                        {/* COLUMNA 2: CONTACTO */}
                         <TableCell>
                           <div className="space-y-1">
                             <div className="flex items-center text-sm text-gray-600">
@@ -205,7 +302,7 @@ export function EmpleadoList() {
                           </div>
                         </TableCell>
 
-                        {/* COLUMNA 3: UBICACIÓN (Dirección) - IMPORTANTE PARA EMPLEADOS */}
+                        {/* COLUMNA 3: UBICACIÓN (Dirección) */}
                         <TableCell>
                           {empleado.direccion ? (
                             <div className="flex items-center text-sm text-gray-600">
@@ -217,25 +314,30 @@ export function EmpleadoList() {
                           )}
                         </TableCell>
 
-                        {/* COLUMNA 4: EDAD - IMPORTANTE PARA EMPLEADOS */}
+                        {/* COLUMNA 4: EDAD con mensaje de cumpleaños */}
                         <TableCell>
-                          {edad !== null ? (
-                            <div className="flex items-center text-sm text-gray-700">
-                              <Cake className="w-3 h-3 mr-1 text-pink-400" />
-                              <span className="font-medium">{edad} años</span>
+                          {edad !== null && diasCumpleanos !== null ? (
+                            <div className="space-y-1">
+                              {/* Edad con el mismo estilo de "Total Citas" */}
+                              <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-500/30">
+                                <Cake className="w-3 h-3 mr-1" />
+                                {edad} años
+                              </span>
+                              {/* Mensaje de cumpleaños - texto normal como contacto */}
+                              <div className="text-xs text-gray-600 flex items-center">
+                                <Calendar className="w-3 h-3 mr-1 text-gray-400" />
+                                {formatearMensajeCumpleanos(diasCumpleanos)}
+                              </div>
                             </div>
                           ) : (
                             <span className="text-sm text-gray-400">No especificada</span>
                           )}
                         </TableCell>
 
-                        {/* COLUMNA 5: ESPECIALIDAD */}
+                        {/* COLUMNA 5: ESPECIALIDAD con colores */}
                         <TableCell>
                           {empleado.especialidad ? (
-                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md shadow-purple-500/30">
-                              <Star className="w-3 h-3 mr-1" />
-                              {empleado.especialidad}
-                            </span>
+                            getEspecialidadBadge(empleado.especialidad)
                           ) : (
                             <span className="text-gray-400">No asignada</span>
                           )}
@@ -291,10 +393,6 @@ export function EmpleadoList() {
         </CardContent>
       </Card>
 
-      {/* 🔧 NOTA: El EmpleadoForm debe actualizarse para INCLUIR los campos:
-          - Dirección (obligatorio o recomendado)
-          - Fecha de nacimiento (para calcular edad)
-          Estos datos SÍ son relevantes para empleados */}
       <EmpleadoForm
         isOpen={isFormOpen}
         onClose={() => {
