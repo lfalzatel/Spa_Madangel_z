@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, XCircle, CheckCircle } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, Briefcase } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -15,14 +15,13 @@ import { EstadisticasDashboard } from '@/components/estadisticas/EstadisticasDas
 export default function Home() {
   const [stats, setStats] = useState({
     citasHoy: 0,
-    clientesHoy: 0,
     citasPendientes: 0,
-    citasCompletadas: 0,
-    serviciosActivos: 0
+    ingresosMes: 0,
+    citasCompletadasMes: 0
   })
-
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('citas')
-  const [citaFilter, setCitaFilter] = useState<string | null>(null)
+  // Estado para controlar el modal de nueva cita
   const [triggerNewCita, setTriggerNewCita] = useState(0)
 
   useEffect(() => {
@@ -31,160 +30,236 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/stats')
-      const data = await response.json()
+      const response = await fetch('/api/citas')
+      const citas = await response.json()
+
+      const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
+      
+      const manana = new Date(hoy)
+      manana.setDate(manana.getDate() + 1)
+
+      const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+      const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)
+
+      const citasHoy = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        fechaCita.setHours(0, 0, 0, 0)
+        return fechaCita.getTime() === hoy.getTime()
+      }).length
+
+      const citasPendientes = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        fechaCita.setHours(0, 0, 0, 0)
+        return (cita.estado === 'programada' || cita.estado === 'confirmada') && 
+               fechaCita >= hoy
+      }).length
+
+      const ingresosMes = citas
+        .filter((cita: any) => {
+          const fechaCita = new Date(cita.fecha)
+          return cita.estado === 'completada' && 
+                 fechaCita >= inicioMes && 
+                 fechaCita <= finMes
+        })
+        .reduce((total: number, cita: any) => total + (cita.total || 0), 0)
+
+      const citasCompletadasMes = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        return cita.estado === 'completada' && 
+               fechaCita >= inicioMes && 
+               fechaCita <= finMes
+      }).length
+
       setStats({
-        citasHoy: data.citasHoy || 0,
-        clientesHoy: data.clientesHoy || 0,
-        citasPendientes: data.citasPendientes || 0,
-        citasCompletadas: data.citasCompletadas || 0,
-        serviciosActivos: data.serviciosActivos || 0
+        citasHoy,
+        citasPendientes,
+        ingresosMes,
+        citasCompletadasMes
       })
     } catch (error) {
       console.error('Error al obtener estadísticas:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
-  // 🔥 FUNCIÓN: Hacer clic en tarjeta para filtrar citas
-  const handleCardClick = (filterType: string) => {
-    setActiveTab('citas')
-    setCitaFilter(filterType)
+  // Función para abrir modal de nueva cita
+  const handleNuevaCita = () => {
+    // Cambiar a tab de citas si no está ahí
+    if (activeTab !== 'citas') {
+      setActiveTab('citas')
+    }
+    // Incrementar para trigger el modal
+    setTriggerNewCita(prev => prev + 1)
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
-      {/* Header */}
-      <header className="mb-8">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 p-4 md:p-6">
+      {/* HEADER PRINCIPAL MODERNO */}
+      <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
-                Spa Madangel
-              </h1>
-              <p className="text-pink-600 mt-2">
-                Sistema de Gestión de Uñas y Belleza
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-            <button onclick="{handleNewCita}" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all">
-                <plus class="w-4 h-4 mr-2">
-                Nueva Cita
-              </plus></button>
-              <Badge variant="secondary" className="bg-pink-100 text-pink-800">
-                Administrador
-              </Badge>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-8 shadow-2xl">
+            {/* Efectos decorativos */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+            
+            {/* Contenido del header */}
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+                  <Briefcase className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-1">
+                    Spa Madangel
+                  </h1>
+                  <p className="text-white/90 text-base">
+                    Sistema de Gestión de Uñas y Belleza
+                  </p>
+                </div>
+              </div>
+              
+              {/* Badge y botón Nueva Cita FIJO */}
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant="secondary" 
+                  className="bg-white/20 text-white backdrop-blur-sm border-white/30 px-4 py-2 text-sm"
+                >
+                  Administrador
+                </Badge>
+                
+                {/* BOTÓN NUEVA CITA - SIEMPRE VISIBLE */}
+                <Button 
+                  onClick={handleNuevaCita}
+                  size="lg"
+                  className="bg-white text-pink-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                >
+                  <CalendarPlus className="w-5 h-5 mr-2" />
+                  Nueva Cita
+                </Button>
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Stats Cards - CLICKEABLES */}
+      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
-          <Card 
-            className="bg-white/80 backdrop-blur-sm border-pink-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('hoy')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-pink-700">
-                Citas del Día
-              </CardTitle>
-              <Calendar className="h-4 w-4 text-pink-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
-              <p className="text-xs text-pink-600">
-                Click para ver las citas de hoy
+          {/* 1. CITAS DE HOY */}
+          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
+                Citas de Hoy
               </p>
-            </CardContent>
-          </Card>
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasHoy}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Agendadas para hoy
+            </p>
+          </div>
 
-          {/* Tarjeta 2: Citas pendientes */}
-          <Card className="bg-white/80 backdrop-blur-sm border-purple-200 cursor-pointer hover:shadow-lg transition-all"  
-          onClick={() => handleCardClick('pendientes')}>
-            <cardheader class="flex flex-row items-center justify-between space-y-0 pb-2">
-              <cardtitle class="text-sm font-medium text-purple-700">
+          {/* 2. CITAS PENDIENTES */}
+          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.2s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
                 Citas Pendientes
-              </cardtitle>
-              <clock class="h-4 w-4 text-purple-600">
-            </clock></cardheader>
-            <cardcontent>
-              <div class="text-2xl font-bold text-purple-900">{stats.citasPendientes}</div>
-              <p class="text-xs text-purple-600">
-                Click para ver citas pendientes
               </p>
-            </cardcontent>
-          </Card>
+              <Clock className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasPendientes}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Por atender (hoy y futuras)
+            </p>
+          </div>
 
-          {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
-          <Card 
-            className="bg-white/80 backdrop-blur-sm border-red-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('canceladas')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-red-700">
-                Citas Canceladas
-              </CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-900">{stats.citasCanceladas}</div>
-              <p className="text-xs text-red-600">
-                Click para ver cancelaciones
+          {/* 3. INGRESOS DEL MES */}
+          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
+                Ingresos del Mes
               </p>
-            </CardContent>
-          </Card>
+              <DollarSign className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : `$${stats.ingresosMes.toLocaleString('es-CO')}`}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Solo citas completadas
+            </p>
+          </div>
 
-          {/* Tarjeta 4: Citas Completadas - CLICKEABLE */}
-          <Card 
-            className="bg-white/80 backdrop-blur-sm border-green-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('completadas')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-green-700">
-                Citas Completadas
-              </CardTitle>
-              <CheckCircle className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-900">{stats.citasCompletadas}</div>
-              <p className="text-xs text-green-600">
-                Click para ver completadas
+          {/* 4. CITAS COMPLETADAS DEL MES */}
+          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
+                Completadas Este Mes
               </p>
-            </CardContent>
-          </Card>
+              <CheckCircle className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasCompletadasMes}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Servicios finalizados
+            </p>
+          </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="citas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+      <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
+        <Tabs 
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
+            <TabsTrigger 
+              value="citas" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Citas
             </TabsTrigger>
-            <TabsTrigger value="clientes" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="clientes" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Users className="w-4 h-4 mr-2" />
               Clientes
             </TabsTrigger>
-            <TabsTrigger value="empleados" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="empleados" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <UserCheck className="w-4 h-4 mr-2" />
               Empleados
             </TabsTrigger>
-            <TabsTrigger value="servicios" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="servicios" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Package className="w-4 h-4 mr-2" />
               Servicios
             </TabsTrigger>
-            <TabsTrigger value="estadisticas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="estadisticas" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Estadísticas
             </TabsTrigger>
           </TabsList>
 
           <TabsContent value="citas" className="space-y-4">
-            <CitaList filterType={citaFilter} onClearFilter={() => setCitaFilter(null)} />
+            <CitaList triggerNewCita={triggerNewCita} />
           </TabsContent>
 
           <TabsContent value="clientes" className="space-y-4">
