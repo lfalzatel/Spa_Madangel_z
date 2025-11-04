@@ -100,7 +100,7 @@ export default function Home() {
             </CardContent>
           </Card>
 
-          {/* Tarjeta 2: Clientes Hoy */}
+          {/* Tarjeta 2: Citas pendientes */}
           <Card className="bg-white/80 backdrop-blur-sm border-purple-200 cursor-pointer hover:shadow-lg transition-all"  
           onClick={() => handleCardClick('pendientes')}>
             <cardheader class="flex flex-row items-center justify-between space-y-0 pb-2">
