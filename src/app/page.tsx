@@ -19,8 +19,8 @@ export default function Home() {
     citasCompletadas: 0,
     serviciosActivos: 0
   })
+  const [isLoading, setIsLoading] = useState(true)
   const [activeTab, setActiveTab] = useState('citas')
-  const [citaFilter, setCitaFilter] = useState<string | null>(null)
   // Estado para controlar el modal de nueva cita
   const [triggerNewCita, setTriggerNewCita] = useState(0)
 
@@ -84,10 +84,14 @@ export default function Home() {
     }
   }
 
-  // 🔥 FUNCIÓN: Hacer clic en tarjeta para filtrar citas
-  const handleCardClick = (filterType: string) => {
-    setActiveTab('citas')
-    setCitaFilter(filterType)
+  // Función para abrir modal de nueva cita
+  const handleNuevaCita = () => {
+    // Cambiar a tab de citas si no está ahí
+    if (activeTab !== 'citas') {
+      setActiveTab('citas')
+    }
+    // Incrementar para trigger el modal
+    setTriggerNewCita(prev => prev + 1)
   }
 
   return (
