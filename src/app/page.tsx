@@ -215,14 +215,12 @@ const handleCardClick = (filterType) => {
          {/* Tarjeta 4: Citas Completadas - CLICKEABLE */}
           <Card 
             className="bg-white/80 backdrop-blur-sm border-green-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('completadas')}
-          >
+            onClick={() => handleCardClick('completadas')}>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium text-green-700">
                 Citas Completadas
               </CardTitle>
               <CheckCircle className="h-4 w-4 text-green-600" />
-              </div>
             <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasCompletadasMes}
             </div>
@@ -235,7 +233,7 @@ const handleCardClick = (filterType) => {
             </CardContent>
           </Card>
           {/* 5. CITAS COMPLETADAS DEL MES */}
-          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' } }onClick={() => handleCardClick('completadas')}>
+          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' }} onClick={() => handleCardClick('completadas')}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
                 Citas Completadas
