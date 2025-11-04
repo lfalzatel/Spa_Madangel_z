@@ -68,7 +68,9 @@ export function ServicioList() {
     }
   }
 
+  // 🔧 FUNCIÓN CORREGIDA: Cargar datos del servicio al editar
   const handleEdit = (servicio: any) => {
+    console.log('Editando servicio:', servicio) // Para debugging
     setSelectedServicio(servicio)
     setIsFormOpen(true)
   }
@@ -270,6 +272,10 @@ export function ServicioList() {
         </CardContent>
       </Card>
 
+      {/* 🔧 NOTA: El componente ServicioForm debe recibir correctamente el prop 'servicio' 
+          y rellenar los campos del formulario. Si no se están cargando los datos al editar,
+          verifica que ServicioForm.tsx esté usando useEffect para llenar los campos cuando
+          cambie el prop 'servicio' */}
       <ServicioForm
         isOpen={isFormOpen}
         onClose={() => {
