@@ -96,8 +96,8 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
-      {/* Header */}
-      <header className="mb-8">
+      {/* HEADER PRINCIPAL MODERNO */}
+      <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
           <div className="flex items-center justify-between">
             <div>
