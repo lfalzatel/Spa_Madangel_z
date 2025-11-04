@@ -199,24 +199,6 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
           </div>
           </Card>
 
-          {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
-          <Card 
-            className="bg-white/80 backdrop-blur-sm border-red-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('canceladas')}
-          >
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-red-700">
-                Citas Canceladas
-              </CardTitle>
-              <XCircle className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-900">{stats.citasCanceladas}</div>
-              <p className="text-xs text-red-600">
-                Click para ver cancelaciones
-              </p>
-            </CardContent>
-          </Card>
            {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
           <div
             className="solid-card success animate-stats-fade-in"
