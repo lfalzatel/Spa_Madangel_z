@@ -23,7 +23,6 @@ const [isLoading, setIsLoading] = useState(true)
 const [activeTab, setActiveTab] = useState('citas')
 // Estado para controlar el modal de nueva cita
 const [triggerNewCita, setTriggerNewCita] = useState(0)
-const [triggerNewCita, setTriggerNewCita] = useState(0)
 const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
   
 
