@@ -99,7 +99,10 @@ export default function Home() {
       {/* HEADER PRINCIPAL MODERNO */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-8 shadow-2xl">
+            {/* Efectos decorativos */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
             <div>
               <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
                 Spa Madangel
