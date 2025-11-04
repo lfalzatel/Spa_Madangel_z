@@ -79,7 +79,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
         citasPendientes,
         ingresosMes,
         citasCompletadasMes,
-        citasCanceladas: data.citasCanceladas || 0,
+        citasCanceladas: citas.filter((cita: any) => cita.estado === 'cancelada').length
       })
     } catch (error) {
       console.error('Error al obtener estadísticas:', error)
