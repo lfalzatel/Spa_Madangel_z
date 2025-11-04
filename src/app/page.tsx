@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, Plus, CalendarPlus, UserPlus, Briefcase } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -20,6 +20,7 @@ export default function Home() {
     citasCompletadasMes: 0
   })
   const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('citas')
 
   useEffect(() => {
     fetchStats()
@@ -27,7 +28,6 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      // Obtener todas las citas
       const response = await fetch('/api/citas')
       const citas = await response.json()
 
@@ -40,14 +40,12 @@ export default function Home() {
       const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
       const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)
 
-      // 1. Citas de HOY (todas las citas del día actual)
       const citasHoy = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
         fechaCita.setHours(0, 0, 0, 0)
         return fechaCita.getTime() === hoy.getTime()
       }).length
 
-      // 2. Citas PENDIENTES (programadas + confirmadas, futuras o de hoy)
       const citasPendientes = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
         fechaCita.setHours(0, 0, 0, 0)
@@ -55,7 +53,6 @@ export default function Home() {
                fechaCita >= hoy
       }).length
 
-      // 3. Ingresos del MES (solo citas completadas del mes actual)
       const ingresosMes = citas
         .filter((cita: any) => {
           const fechaCita = new Date(cita.fecha)
@@ -65,7 +62,6 @@ export default function Home() {
         })
         .reduce((total: number, cita: any) => total + (cita.total || 0), 0)
 
-      // 4. Citas COMPLETADAS del MES
       const citasCompletadasMes = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
         return cita.estado === 'completada' && 
@@ -86,30 +82,90 @@ export default function Home() {
     }
   }
 
+  // Función para obtener el botón de acción según el tab activo
+  const getActionButton = () => {
+    const buttons = {
+      citas: {
+        label: 'Nueva Cita',
+        icon: <CalendarPlus className="w-4 h-4 mr-2" />,
+        onClick: () => {/* Trigger nueva cita */}
+      },
+      clientes: {
+        label: 'Nuevo Cliente',
+        icon: <UserPlus className="w-4 h-4 mr-2" />,
+        onClick: () => {/* Trigger nuevo cliente */}
+      },
+      empleados: {
+        label: 'Nuevo Empleado',
+        icon: <UserPlus className="w-4 h-4 mr-2" />,
+        onClick: () => {/* Trigger nuevo empleado */}
+      },
+      servicios: {
+        label: 'Nuevo Servicio',
+        icon: <Plus className="w-4 h-4 mr-2" />,
+        onClick: () => {/* Trigger nuevo servicio */}
+      },
+      estadisticas: null
+    }
+
+    return buttons[activeTab as keyof typeof buttons]
+  }
+
+  const actionButton = getActionButton()
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 p-4 md:p-6">
-      {/* Header */}
+      {/* 🆕 HEADER PRINCIPAL MODERNO */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
-          <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-white">
-                Spa Madangel
-              </h1>
-              <p className="text-blue-200 mt-2">
-                Sistema de Gestión de Uñas y Belleza
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-              <Badge variant="secondary" className="bg-white/20 text-white backdrop-blur-sm border-white/30">
-                Administrador
-              </Badge>
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-pink-500 via-rose-500 to-pink-600 p-8 shadow-2xl">
+            {/* Efectos decorativos */}
+            <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
+            
+            {/* Contenido del header */}
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+                  <Briefcase className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-1">
+                    Spa Madangel
+                  </h1>
+                  <p className="text-white/90 text-base">
+                    Sistema de Gestión de Uñas y Belleza
+                  </p>
+                </div>
+              </div>
+              
+              {/* Badge y botón de acción */}
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant="secondary" 
+                  className="bg-white/20 text-white backdrop-blur-sm border-white/30 px-4 py-2 text-sm"
+                >
+                  Administrador
+                </Badge>
+                
+                {/* Botón de acción contextual */}
+                {actionButton && (
+                  <Button 
+                    onClick={actionButton.onClick}
+                    size="lg"
+                    className="bg-white text-pink-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                  >
+                    {actionButton.icon}
+                    {actionButton.label}
+                  </Button>
+                )}
+              </div>
             </div>
           </div>
         </div>
       </header>
 
-      {/* Stats Cards - CON DATOS REALES Y MÉTRICAS ÚTILES */}
+      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {/* 1. CITAS DE HOY */}
@@ -180,7 +236,11 @@ export default function Home() {
 
       {/* Main Content */}
       <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
-        <Tabs defaultValue="citas" className="space-y-6">
+        <Tabs 
+          defaultValue="citas" 
+          className="space-y-6"
+          onValueChange={(value) => setActiveTab(value)}
+        >
           <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
             <TabsTrigger 
               value="citas" 
