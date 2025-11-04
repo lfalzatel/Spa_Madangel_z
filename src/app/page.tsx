@@ -30,17 +30,57 @@ export default function Home() {
 
   const fetchStats = async () => {
     try {
-      const response = await fetch('/api/stats')
-      const data = await response.json()
+      const response = await fetch('/api/citas')
+      const citas = await response.json()
+
+      const hoy = new Date()
+      hoy.setHours(0, 0, 0, 0)
+      
+      const manana = new Date(hoy)
+      manana.setDate(manana.getDate() + 1)
+
+      const inicioMes = new Date(hoy.getFullYear(), hoy.getMonth(), 1)
+      const finMes = new Date(hoy.getFullYear(), hoy.getMonth() + 1, 0)
+
+      const citasHoy = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        fechaCita.setHours(0, 0, 0, 0)
+        return fechaCita.getTime() === hoy.getTime()
+      }).length
+
+      const citasPendientes = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        fechaCita.setHours(0, 0, 0, 0)
+        return (cita.estado === 'programada' || cita.estado === 'confirmada') && 
+               fechaCita >= hoy
+      }).length
+
+      const ingresosMes = citas
+        .filter((cita: any) => {
+          const fechaCita = new Date(cita.fecha)
+          return cita.estado === 'completada' && 
+                 fechaCita >= inicioMes && 
+                 fechaCita <= finMes
+        })
+        .reduce((total: number, cita: any) => total + (cita.total || 0), 0)
+
+      const citasCompletadasMes = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        return cita.estado === 'completada' && 
+               fechaCita >= inicioMes && 
+               fechaCita <= finMes
+      }).length
+
       setStats({
-        citasHoy: data.citasHoy || 0,
-        clientesHoy: data.clientesHoy || 0,
-        citasPendientes: data.citasPendientes || 0,
-        citasCompletadas: data.citasCompletadas || 0,
-        serviciosActivos: data.serviciosActivos || 0
+        citasHoy,
+        citasPendientes,
+        ingresosMes,
+        citasCompletadasMes
       })
     } catch (error) {
       console.error('Error al obtener estadísticas:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
