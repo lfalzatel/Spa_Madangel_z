@@ -103,22 +103,41 @@ export default function Home() {
             {/* Efectos decorativos */}
             <div className="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl -translate-y-1/2 translate-x-1/2"></div>
             <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/5 rounded-full blur-2xl translate-y-1/2 -translate-x-1/2"></div>
-            <div>
-              <h1 className="text-3xl md:text-4xl font-bold text-pink-800">
-                Spa Madangel
-              </h1>
-              <p className="text-pink-600 mt-2">
-                Sistema de Gestión de Uñas y Belleza
-              </p>
-            </div>
-            <div className="flex items-center gap-2">
-            <button onclick="{handleNewCita}" class="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all">
-                <plus class="w-4 h-4 mr-2">
-                Nueva Cita
-              </plus></button>
-              <Badge variant="secondary" className="bg-pink-100 text-pink-800">
-                Administrador
-              </Badge>
+            {/* Contenido del header */}
+            <div className="relative z-10 flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
+                  <Briefcase className="w-10 h-10 text-white" />
+                </div>
+                <div>
+                  <h1 className="text-4xl font-bold text-white mb-1">
+                    Spa Madangel
+                  </h1>
+                  <p className="text-white/90 text-base">
+                    Sistema de Gestión de Uñas y Belleza
+                  </p>
+                </div>
+              </div>
+              
+              {/* Badge y botón Nueva Cita FIJO */}
+              <div className="flex items-center gap-3">
+                <Badge 
+                  variant="secondary" 
+                  className="bg-white/20 text-white backdrop-blur-sm border-white/30 px-4 py-2 text-sm"
+                >
+                  Administrador
+                </Badge>
+                
+                {/* BOTÓN NUEVA CITA - SIEMPRE VISIBLE */}
+                <Button 
+                  onClick={handleNuevaCita}
+                  size="lg"
+                  className="bg-white text-pink-600 hover:bg-white/90 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 font-semibold"
+                >
+                  <CalendarPlus className="w-5 h-5 mr-2" />
+                  Nueva Cita
+                </Button>
+              </div>
             </div>
           </div>
         </div>
