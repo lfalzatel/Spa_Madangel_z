@@ -78,7 +78,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
         citasHoy,
         citasPendientes,
         ingresosMes,
-        citasCompletadasMes
+        citasCompletadasMes,
         citasCanceladas: data.citasCanceladas || 0,
       })
     } catch (error) {
