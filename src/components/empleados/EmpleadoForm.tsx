@@ -1,139 +1,294 @@
+// 🔧 EJEMPLO: EmpleadoForm.tsx - CON dirección y fecha de nacimiento
+// Los empleados necesitan información completa para gestión laboral
+
 "use client"
 
-import { useState } from 'react'
+import { useEffect } from 'react'
+import { useForm } from 'react-hook-form'
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 
 interface EmpleadoFormProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: any) => void
-  empleado?: any
-  isLoading?: boolean
+  empleado: any | null
+  isLoading: boolean
 }
 
 export function EmpleadoForm({ isOpen, onClose, onSubmit, empleado, isLoading }: EmpleadoFormProps) {
-  const [formData, setFormData] = useState({
-    nombre: empleado?.nombre || '',
-    apellido: empleado?.apellido || '',
-    email: empleado?.email || '',
-    telefono: empleado?.telefono || '',
-    especialidad: empleado?.especialidad || '',
-    activo: empleado?.activo ?? true
+  const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
+    defaultValues: {
+      nombre: '',
+      apellido: '',
+      email: '',
+      telefono: '',
+      direccion: '', // 🔥 NUEVO: Importante para empleados
+      fechaNacimiento: '', // 🔥 NUEVO: Importante para empleados
+      fechaContratacion: new Date().toISOString().split('T')[0],
+      especialidad: '',
+      activo: true
+    }
   })
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    onSubmit(formData)
-  }
+  useEffect(() => {
+    if (empleado) {
+      console.log('Cargando datos del empleado:', empleado)
+      
+      setValue('nombre', empleado.nombre)
+      setValue('apellido', empleado.apellido)
+      setValue('email', empleado.email)
+      setValue('telefono', empleado.telefono || '')
+      setValue('direccion', empleado.direccion || '')
+      setValue('fechaNacimiento', empleado.fechaNacimiento ? empleado.fechaNacimiento.split('T')[0] : '')
+      setValue('fechaContratacion', empleado.fechaContratacion.split('T')[0])
+      setValue('especialidad', empleado.especialidad || '')
+      setValue('activo', empleado.activo)
+    } else {
+      reset({
+        nombre: '',
+        apellido: '',
+        email: '',
+        telefono: '',
+        direccion: '',
+        fechaNacimiento: '',
+        fechaContratacion: new Date().toISOString().split('T')[0],
+        especialidad: '',
+        activo: true
+      })
+    }
+  }, [empleado, setValue, reset])
 
-  const handleChange = (field: string, value: any) => {
-    setFormData(prev => ({ ...prev, [field]: value }))
+  const handleFormSubmit = (data: any) => {
+    // Validación adicional: debe ser mayor de 18 años
+    const hoy = new Date()
+    const nacimiento = new Date(data.fechaNacimiento)
+    const edad = hoy.getFullYear() - nacimiento.getFullYear()
+    
+    if (edad < 18) {
+      alert('El empleado debe ser mayor de 18 años')
+      return
+    }
+    
+    onSubmit(data)
   }
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[600px] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>
-            {empleado ? 'Editar Empleado' : 'Nuevo Empleado'}
+            {empleado ? '✏️ Editar Empleado' : '➕ Nuevo Empleado'}
           </DialogTitle>
-          <DialogDescription>
-            {empleado ? 'Edita la información del empleado' : 'Registra un nuevo empleado en el sistema'}
-          </DialogDescription>
         </DialogHeader>
-        
-        <form onSubmit={handleSubmit} className="space-y-4">
+
+        <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
+          {/* Nombre y Apellido */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
+            <div>
               <Label htmlFor="nombre">Nombre *</Label>
               <Input
                 id="nombre"
-                value={formData.nombre}
-                onChange={(e) => handleChange('nombre', e.target.value)}
+                {...register('nombre', { required: 'El nombre es obligatorio' })}
                 placeholder="Juan"
-                required
               />
+              {errors.nombre && (
+                <p className="text-sm text-red-500 mt-1">{errors.nombre.message}</p>
+              )}
             </div>
-            <div className="space-y-2">
+
+            <div>
               <Label htmlFor="apellido">Apellido *</Label>
               <Input
                 id="apellido"
-                value={formData.apellido}
-                onChange={(e) => handleChange('apellido', e.target.value)}
+                {...register('apellido', { required: 'El apellido es obligatorio' })}
                 placeholder="Pérez"
-                required
               />
+              {errors.apellido && (
+                <p className="text-sm text-red-500 mt-1">{errors.apellido.message}</p>
+              )}
             </div>
           </div>
 
-          <div className="space-y-2">
+          {/* Email */}
+          <div>
             <Label htmlFor="email">Email *</Label>
             <Input
               id="email"
               type="email"
-              value={formData.email}
-              onChange={(e) => handleChange('email', e.target.value)}
-              placeholder="juan@ejemplo.com"
-              required
+              {...register('email', {
+                required: 'El email es obligatorio',
+                pattern: {
+                  value: /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i,
+                  message: 'Email inválido'
+                }
+              })}
+              placeholder="juan.perez@madangel.com"
             />
+            {errors.email && (
+              <p className="text-sm text-red-500 mt-1">{errors.email.message}</p>
+            )}
           </div>
 
-          <div className="space-y-2">
+          {/* Teléfono */}
+          <div>
             <Label htmlFor="telefono">Teléfono</Label>
             <Input
               id="telefono"
-              value={formData.telefono}
-              onChange={(e) => handleChange('telefono', e.target.value)}
-              placeholder="+1234567890"
+              type="tel"
+              {...register('telefono', {
+                pattern: {
+                  value: /^[0-9]{10,}$/,
+                  message: 'Debe tener al menos 10 dígitos'
+                }
+              })}
+              placeholder="3001234567"
+            />
+            {errors.telefono && (
+              <p className="text-sm text-red-500 mt-1">{errors.telefono.message}</p>
+            )}
+          </div>
+
+          {/* 🔥 DIRECCIÓN - NUEVO CAMPO PARA EMPLEADOS */}
+          <div>
+            <Label htmlFor="direccion">Dirección *</Label>
+            <Input
+              id="direccion"
+              {...register('direccion', {
+                required: 'La dirección es obligatoria',
+                minLength: {
+                  value: 10,
+                  message: 'La dirección debe tener al menos 10 caracteres'
+                }
+              })}
+              placeholder="Calle 123 #45-67, Barrio Centro"
+            />
+            {errors.direccion && (
+              <p className="text-sm text-red-500 mt-1">{errors.direccion.message}</p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              Necesaria para documentación laboral y contacto de emergencia
+            </p>
+          </div>
+
+          {/* 🔥 FECHA DE NACIMIENTO - NUEVO CAMPO PARA EMPLEADOS */}
+          <div>
+            <Label htmlFor="fechaNacimiento">Fecha de Nacimiento *</Label>
+            <Input
+              id="fechaNacimiento"
+              type="date"
+              {...register('fechaNacimiento', {
+                required: 'La fecha de nacimiento es obligatoria',
+                validate: (value) => {
+                  const hoy = new Date()
+                  const nacimiento = new Date(value)
+                  const edad = hoy.getFullYear() - nacimiento.getFullYear()
+                  return edad >= 18 || 'Debe ser mayor de 18 años'
+                }
+              })}
+              max={new Date().toISOString().split('T')[0]}
+            />
+            {errors.fechaNacimiento && (
+              <p className="text-sm text-red-500 mt-1">{errors.fechaNacimiento.message}</p>
+            )}
+            <p className="text-xs text-gray-500 mt-1">
+              Se usará para calcular edad y recordar cumpleaños
+            </p>
+          </div>
+
+          {/* Fecha de Contratación */}
+          <div>
+            <Label htmlFor="fechaContratacion">Fecha de Contratación *</Label>
+            <Input
+              id="fechaContratacion"
+              type="date"
+              {...register('fechaContratacion', {
+                required: 'La fecha de contratación es obligatoria'
+              })}
+            />
+            {errors.fechaContratacion && (
+              <p className="text-sm text-red-500 mt-1">{errors.fechaContratacion.message}</p>
+            )}
+          </div>
+
+          {/* Especialidad */}
+          <div>
+            <Label htmlFor="especialidad">Especialidad</Label>
+            <Input
+              id="especialidad"
+              {...register('especialidad')}
+              placeholder="Ej: Manicura, Pedicura, Arte en Uñas"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Área de expertise del empleado
+            </p>
+          </div>
+
+          {/* Estado Activo/Inactivo */}
+          <div className="flex items-center justify-between p-4 border rounded-lg">
+            <div>
+              <Label htmlFor="activo" className="font-medium">
+                Empleado Activo
+              </Label>
+              <p className="text-sm text-gray-500">
+                {watch('activo') ? 'Disponible para asignar citas' : 'No disponible'}
+              </p>
+            </div>
+            <Switch
+              id="activo"
+              checked={watch('activo')}
+              onCheckedChange={(checked) => setValue('activo', checked)}
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="especialidad">Especialidad</Label>
-            <Select value={formData.especialidad} onValueChange={(value) => handleChange('especialidad', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona una especialidad" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="Manicura">Manicura</SelectItem>
-                <SelectItem value="Pedicura">Pedicura</SelectItem>
-                <SelectItem value="Uñas Acrílicas">Uñas Acrílicas</SelectItem>
-                <SelectItem value="Uñas de Gel">Uñas de Gel</SelectItem>
-                <SelectItem value="Arte en Uñas">Arte en Uñas</SelectItem>
-                <SelectItem value="Spa de Manos">Spa de Manos</SelectItem>
-                <SelectItem value="Spa de Pies">Spa de Pies</SelectItem>
-                <SelectItem value="General">General</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {empleado && (
-            <div className="flex items-center space-x-2">
-              <Switch
-                id="activo"
-                checked={formData.activo}
-                onCheckedChange={(checked) => handleChange('activo', checked)}
-              />
-              <Label htmlFor="activo">Empleado activo</Label>
-            </div>
-          )}
-
-          <DialogFooter>
-            <Button type="button" variant="outline" onClick={onClose}>
+          {/* Botones */}
+          <div className="flex justify-end gap-3 pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={onClose}
+              disabled={isLoading}
+            >
               Cancelar
             </Button>
-            <Button type="submit" disabled={isLoading}>
-              {isLoading ? 'Guardando...' : (empleado ? 'Actualizar' : 'Crear')}
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white"
+            >
+              {isLoading ? 'Guardando...' : empleado ? 'Actualizar' : 'Crear'}
             </Button>
-          </DialogFooter>
+          </div>
         </form>
       </DialogContent>
     </Dialog>
   )
 }
+
+// 📝 CAMBIOS REALIZADOS:
+// 
+// ✅ AGREGADOS:
+// - Campo "Dirección" (obligatorio, mínimo 10 caracteres)
+//   * Necesaria para documentación laboral
+//   * Útil para contacto de emergencia
+//   * Requerida para aspectos legales
+//
+// - Campo "Fecha de Nacimiento" (obligatorio, debe ser mayor de 18 años)
+//   * Calcula automáticamente la edad en la tabla
+//   * Útil para recordatorios de cumpleaños
+//   * Importante para gestión de personal
+//
+// 🔒 VALIDACIONES AGREGADAS:
+// - Dirección: mínimo 10 caracteres
+// - Fecha de nacimiento: debe ser mayor de 18 años
+// - Fecha de nacimiento: no puede ser futura
+//
+// 💡 BENEFICIOS:
+// - Información completa del empleado
+// - Cumplimiento de requisitos legales y administrativos
+// - Mejor gestión de recursos humanos
+// - Documentación completa para nómina y contratos
