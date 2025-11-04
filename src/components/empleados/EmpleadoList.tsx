@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { EmpleadoForm } from './EmpleadoForm'
-import { Search, Plus, Edit, Trash2, User, Mail, Phone, Star } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, User, Mail, Phone, Star, MapPin, Calendar, Cake } from 'lucide-react'
 
 export function EmpleadoList() {
   const [empleados, setEmpleados] = useState([])
@@ -97,6 +97,22 @@ export function EmpleadoList() {
     setIsFormOpen(true)
   }
 
+  // 🔧 FUNCIÓN: Calcular edad del empleado
+  const calcularEdad = (fechaNacimiento: string) => {
+    if (!fechaNacimiento) return null
+    
+    const hoy = new Date()
+    const nacimiento = new Date(fechaNacimiento)
+    let edad = hoy.getFullYear() - nacimiento.getFullYear()
+    const mes = hoy.getMonth() - nacimiento.getMonth()
+    
+    if (mes < 0 || (mes === 0 && hoy.getDate() < nacimiento.getDate())) {
+      edad--
+    }
+    
+    return edad
+  }
+
   return (
     <div className="space-y-6">
       <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
@@ -139,6 +155,8 @@ export function EmpleadoList() {
                 <TableRow>
                   <TableHead>Empleado</TableHead>
                   <TableHead>Contacto</TableHead>
+                  <TableHead>Ubicación</TableHead>
+                  <TableHead>Edad</TableHead>
                   <TableHead>Especialidad</TableHead>
                   <TableHead>Estado</TableHead>
                   <TableHead>Fecha Contratación</TableHead>
@@ -148,7 +166,7 @@ export function EmpleadoList() {
               <TableBody>
                 {filteredEmpleados.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} className="text-center py-8">
+                    <TableCell colSpan={8} className="text-center py-8">
                       <div className="flex flex-col items-center text-gray-500">
                         <User className="w-12 h-12 mb-4 text-gray-400" />
                         <p>No se encontraron empleados</p>
@@ -157,75 +175,115 @@ export function EmpleadoList() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredEmpleados.map((empleado: any) => (
-                    <TableRow key={empleado.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {empleado.nombre} {empleado.apellido}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Mail className="w-3 h-3 mr-1" />
-                            {empleado.email}
-                          </div>
-                          {empleado.telefono && (
-                            <div className="flex items-center text-sm text-gray-600">
-                              <Phone className="w-3 h-3 mr-1" />
-                              {empleado.telefono}
+                  filteredEmpleados.map((empleado: any) => {
+                    const edad = calcularEdad(empleado.fechaNacimiento)
+                    
+                    return (
+                      <TableRow key={empleado.id}>
+                        {/* COLUMNA 1: EMPLEADO */}
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">
+                              {empleado.nombre} {empleado.apellido}
                             </div>
+                          </div>
+                        </TableCell>
+
+                        {/* COLUMNA 2: CONTACTO (Email + Teléfono) */}
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Mail className="w-3 h-3 mr-1 text-gray-400" />
+                              {empleado.email}
+                            </div>
+                            {empleado.telefono && (
+                              <div className="flex items-center text-sm text-gray-600">
+                                <Phone className="w-3 h-3 mr-1 text-gray-400" />
+                                {empleado.telefono}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* COLUMNA 3: UBICACIÓN (Dirección) - IMPORTANTE PARA EMPLEADOS */}
+                        <TableCell>
+                          {empleado.direccion ? (
+                            <div className="flex items-center text-sm text-gray-600">
+                              <MapPin className="w-3 h-3 mr-1 text-gray-400 flex-shrink-0" />
+                              <span className="truncate max-w-xs">{empleado.direccion}</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">No especificada</span>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {empleado.especialidad ? (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md shadow-purple-500/30">
-                            <Star className="w-3 h-3 mr-1" />
-                            {empleado.especialidad}
-                          </span>
-                        ) : (
-                          <span className="text-gray-400">No asignada</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {empleado.activo ? (
-                          <span className="badge-completada">Activo</span>
-                        ) : (
-                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-400 text-white">
-                            Inactivo
-                          </span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-sm text-gray-600">
-                          {new Date(empleado.fechaContratacion).toLocaleDateString('es-ES')}
-                        </span>
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(empleado)}
-                            className="hover:bg-blue-50"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(empleado.id)}
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+
+                        {/* COLUMNA 4: EDAD - IMPORTANTE PARA EMPLEADOS */}
+                        <TableCell>
+                          {edad !== null ? (
+                            <div className="flex items-center text-sm text-gray-700">
+                              <Cake className="w-3 h-3 mr-1 text-pink-400" />
+                              <span className="font-medium">{edad} años</span>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">No especificada</span>
+                          )}
+                        </TableCell>
+
+                        {/* COLUMNA 5: ESPECIALIDAD */}
+                        <TableCell>
+                          {empleado.especialidad ? (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-purple-500 to-indigo-500 text-white shadow-md shadow-purple-500/30">
+                              <Star className="w-3 h-3 mr-1" />
+                              {empleado.especialidad}
+                            </span>
+                          ) : (
+                            <span className="text-gray-400">No asignada</span>
+                          )}
+                        </TableCell>
+
+                        {/* COLUMNA 6: ESTADO */}
+                        <TableCell>
+                          {empleado.activo ? (
+                            <span className="badge-completada">Activo</span>
+                          ) : (
+                            <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-400 text-white">
+                              Inactivo
+                            </span>
+                          )}
+                        </TableCell>
+
+                        {/* COLUMNA 7: FECHA CONTRATACIÓN */}
+                        <TableCell>
+                          <div className="flex items-center text-sm text-gray-600">
+                            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
+                            {new Date(empleado.fechaContratacion).toLocaleDateString('es-ES')}
+                          </div>
+                        </TableCell>
+
+                        {/* COLUMNA 8: ACCIONES */}
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(empleado)}
+                              className="hover:bg-blue-50"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(empleado.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
@@ -233,6 +291,10 @@ export function EmpleadoList() {
         </CardContent>
       </Card>
 
+      {/* 🔧 NOTA: El EmpleadoForm debe actualizarse para INCLUIR los campos:
+          - Dirección (obligatorio o recomendado)
+          - Fecha de nacimiento (para calcular edad)
+          Estos datos SÍ son relevantes para empleados */}
       <EmpleadoForm
         isOpen={isFormOpen}
         onClose={() => {
