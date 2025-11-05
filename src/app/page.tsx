@@ -47,22 +47,21 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
 
       const citasHoy = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
-        fechaCita.setHours(0, 0, 0, 0)
-        return fechaCita.getTime() === hoy.getTime()
+        const fechaLocal = new Date(fechaCita.getTime() - fechaCita.getTimezoneOffset() * 60000)
+        fechaLocal.setHours(0, 0, 0, 0)
+        return fechaLocal.getTime() === hoy.getTime()
       }).length
 
       const citasPendientes = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
-        fechaCita.setHours(0, 0, 0, 0)
+        const fechaLocal = new Date(fechaCita.getTime() - fechaCita.getTimezoneOffset() * 60000)
+        fechaLocal.setHours(0, 0, 0, 0)
+
         return (
           (cita.estado === 'programada' || cita.estado === 'confirmada') &&
-          fechaCita >= hoy &&
-          cita.estado !== 'completada' &&
-          cita.estado !== 'cancelada' &&
-          cita.estado !== 'no_asistio'
+          fechaLocal >= hoy
         )
       }).length
-
 
       const ingresosMes = citas
         .filter((cita: any) => {
@@ -203,7 +202,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               <p className="text-sm font-medium text-white/80">
                 Citas canceladas
               </p>
-              <XCircle className="h-4 w-4 text-white-600" />
+              <XCircle className="h-5 w-5 text-white" />
             </div>
             <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasCanceladas}
