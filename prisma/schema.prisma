@@ -1,25 +1,51 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+// Prisma Schema con Categorías Dinámicas
+// Actualización para Spa Madangel
 
 generator client {
   provider = "prisma-client-js"
 }
-
-//datasource db {
-//  provider = "sqlite"
-//  url      = env("DATABASE_URL")
-//}
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
 
-// Spa Madangel - Sistema de Gestión
+// ✨ NUEVO MODELO: Categorías
+model Categoria {
+  id          String   @id @default(cuid())
+  nombre      String   @unique
+  descripcion String?
+  color       String   @default("gray") // Color para el badge: pink, purple, blue, green, orange, cyan, indigo, red, gray
+  icono       String?  // Nombre del icono de Lucide (opcional)
+  activo      Boolean  @default(true)
+  orden       Int      @default(0) // Para ordenar las categorías
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  servicios   Servicio[]
+  
+  @@map("categorias")
+}
 
+// 🔄 MODELO ACTUALIZADO: Servicio ahora usa relación con Categoria
+model Servicio {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String?
+  duracion    Int      // en minutos
+  precio      Float
+  categoriaId String   // 🔄 Cambiado de 'categoria' String a 'categoriaId'
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  categoria   Categoria @relation(fields: [categoriaId], references: [id]) // ✨ Nueva relación
+  citas       Cita[]
+  
+  @@map("servicios")
+}
+
+// Modelos sin cambios
 model Empleado {
   id          String   @id @default(cuid())
   nombre      String
@@ -52,22 +78,6 @@ model Cliente {
   citas       Cita[]
   
   @@map("clientes")
-}
-
-model Servicio {
-  id          String   @id @default(cuid())
-  nombre      String
-  descripcion String?
-  duracion    Int      // en minutos
-  precio      Float
-  categoria   String   // ej: Manicura, Pedicura, Uñas Acrílicas, etc.
-  activo      Boolean  @default(true)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-  
-  citas       Cita[]
-  
-  @@map("servicios")
 }
 
 model Cita {
