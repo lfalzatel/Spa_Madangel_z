@@ -1,6 +1,10 @@
+// 📁 src/app/api/citas/[id]/route.ts (ACTUALIZADO)
+// API actualizada para operaciones individuales de citas
+
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+// GET - Obtener una cita específica
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -11,7 +15,11 @@ export async function GET(
       include: {
         cliente: true,
         empleado: true,
-        servicio: true
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
       }
     })
 
@@ -32,31 +40,48 @@ export async function GET(
   }
 }
 
+// PUT - Actualizar cita
 export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
     const body = await request.json()
-    const { clienteId, empleadoId, servicioId, fecha, horaInicio, estado, notas } = body
+    const { clienteId, empleadoId, servicioId, fecha, horaInicio, notas, estado } = body
 
-    // Si se cambia el servicio, recalcular duración y precio
-    let horaFin = body.horaFin
-    let total = body.total
+    // Verificar si la cita existe
+    const citaExistente = await db.cita.findUnique({
+      where: { id: params.id }
+    })
 
-    if (servicioId && servicioId !== body.servicioId) {
+    if (!citaExistente) {
+      return NextResponse.json(
+        { error: 'Cita no encontrada' },
+        { status: 404 }
+      )
+    }
+
+    // Si se cambió el servicio, recalcular hora de fin y precio
+    let horaFin = citaExistente.horaFin
+    let total = citaExistente.total
+
+    if (servicioId && servicioId !== citaExistente.servicioId) {
       const servicio = await db.servicio.findUnique({
         where: { id: servicioId }
       })
 
-      if (servicio) {
-        const [hours, minutes] = horaInicio.split(':').map(Number)
-        const startTime = new Date()
-        startTime.setHours(hours, minutes, 0, 0)
-        const endTime = new Date(startTime.getTime() + servicio.duracion * 60000)
-        horaFin = `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`
-        total = servicio.precio
+      if (!servicio) {
+        return NextResponse.json(
+          { error: 'Servicio no encontrado' },
+          { status: 404 }
+        )
       }
+
+      const horaInicioActual = horaInicio || citaExistente.horaInicio
+      const [horas, minutos] = horaInicioActual.split(':').map(Number)
+      const totalMinutos = horas * 60 + minutos + servicio.duracion
+      horaFin = `${Math.floor(totalMinutos / 60).toString().padStart(2, '0')}:${(totalMinutos % 60).toString().padStart(2, '0')}`
+      total = servicio.precio
     }
 
     const cita = await db.cita.update({
@@ -75,7 +100,11 @@ export async function PUT(
       include: {
         cliente: true,
         empleado: true,
-        servicio: true
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
       }
     })
 
@@ -89,20 +118,36 @@ export async function PUT(
   }
 }
 
+// DELETE - Eliminar (o cancelar) cita
 export async function DELETE(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
   try {
-    await db.cita.delete({
-      where: { id: params.id }
+    // En lugar de eliminar, cambiar estado a 'cancelada'
+    const cita = await db.cita.update({
+      where: { id: params.id },
+      data: { estado: 'cancelada' },
+      include: {
+        cliente: true,
+        empleado: true,
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
+      }
     })
 
-    return NextResponse.json({ message: 'Cita eliminada correctamente' })
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Cita cancelada exitosamente',
+      cita 
+    })
   } catch (error) {
-    console.error('Error al eliminar cita:', error)
+    console.error('Error al cancelar cita:', error)
     return NextResponse.json(
-      { error: 'Error al eliminar cita' },
+      { error: 'Error al cancelar cita' },
       { status: 500 }
     )
   }
