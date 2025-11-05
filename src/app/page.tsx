@@ -52,10 +52,11 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
       }).length
 
       const citasPendientes = citas.filter((cita: any) => {
-        const fechaCita = new Date(cita.fecha)
-        fechaCita.setHours(0, 0, 0, 0)
-        return (cita.estado === 'programada' || cita.estado === 'confirmada') && 
-               fechaCita >= hoy
+        return (
+          (cita.estado === 'programada' || cita.estado === 'confirmada') &&
+          cita.estado !== 'completada' && 
+          cita.estado !== 'cancelada'
+        )
       }).length
 
       const ingresosMes = citas
@@ -155,30 +156,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
       {/* Stats Cards - CLICKEABLES */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-         {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
-          <Card 
-            className="bg-white/80 backdrop-blur-sm border-pink-200 cursor-pointer hover:shadow-lg transition-all"
-            onClick={() => handleCardClick('hoy')}>
-            <CardHeader className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
-              <CardTitle className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <p className="text-sm font-medium text-white/80">
-                Citas de Hoy</p>
-              </CardTitle>
-              <Calendar className="h-5 w-5 text-white" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
-              <p className="text-xs text-pink-600">
-                Click para ver las citas de hoy
-              </p>
-              <div className="text-3xl font-bold text-white mt-2">
-              {isLoading ? '...' : stats.citasHoy}
-            </div>
-            <p className="text-xs text-blue/70 mt-1">
-                Click para ver las citas de hoy
-              </p>
-            </CardContent>
-          </Card>
+          {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
           <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }} onClick={() => handleCardClick('hoy')}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
@@ -190,8 +168,8 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               {isLoading ? '...' : stats.citasHoy}
             </div>
             <p className="text-xs text-white/70 mt-1">
-              Agendadas para hoy
-            </p>
+              Click para ver las citas de hoy
+              </p>
           </div>
 
           {/* Tarjeta 2: Citas pendientes */}
@@ -211,6 +189,37 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               Por atender (hoy y futuras)
             </p>
           </div>
+          </Card>
+          {/* 2. CITAS PENDIENTES */}
+          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.2s' }} onClick={() => handleCardClick('pendientes')}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
+                Citas Pendientes
+              </p>
+              <Clock className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasPendientes}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Por atender (hoy y futuras)
+            </p>
+          </div>
+          {/* Tarjeta 2: Citas pendientes */}
+          <Card className="bg-white/80 backdrop-blur-sm border-purple-200 cursor-pointer hover:shadow-lg transition-all"  
+          onClick={() => handleCardClick('pendientes')}>
+            <cardheader class="flex flex-row items-center justify-between space-y-0 pb-2">
+              <cardtitle class="text-sm font-medium text-purple-700">
+                Citas Pendientes
+              </cardtitle>
+              <clock class="h-4 w-4 text-purple-600">
+            </clock></cardheader>
+            <cardcontent>
+              <div class="text-2xl font-bold text-purple-900">{stats.citasPendientes}</div>
+              <p class="text-xs text-purple-600">
+                Click para ver citas pendientes
+              </p>
+            </cardcontent>
           </Card>
 
            {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
