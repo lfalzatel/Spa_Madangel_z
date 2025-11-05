@@ -179,6 +179,20 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               </p>
             </CardContent>
           </Card>
+          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }} onClick={() => handleCardClick('hoy')}>
+            <div className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <p className="text-sm font-medium text-white/80">
+                Citas de Hoy
+              </p>
+              <Calendar className="h-5 w-5 text-white" />
+            </div>
+            <div className="text-3xl font-bold text-white mt-2">
+              {isLoading ? '...' : stats.citasHoy}
+            </div>
+            <p className="text-xs text-white/70 mt-1">
+              Agendadas para hoy
+            </p>
+          </div>
 
           {/* Tarjeta 2: Citas pendientes */}
           <Card className="bg-white/80 backdrop-blur-sm border-purple-200 cursor-pointer hover:shadow-lg transition-all"  
