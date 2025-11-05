@@ -21,7 +21,12 @@ interface EmpleadoFormProps {
 }
 
 // 🎨 Lista de especialidades disponibles
+// 🌿 Lista de especialidades disponibles en el spa
 const ESPECIALIDADES = [
+  'Masajes Relajantes',
+  'Masajes Terapéuticos',
+  'Masajes Deportivos',
+  'Masajes con Piedras',
   'Manicura',
   'Pedicura',
   'Uñas Acrílicas',
@@ -29,10 +34,16 @@ const ESPECIALIDADES = [
   'Arte en Uñas',
   'Spa de Manos',
   'Spa de Pies',
-  'Tratamientos',
-  'Diseño',
-  'Masajes'
+  'Tratamientos Faciales',
+  'Tratamientos Corporales',
+  'Depilación',
+  'Diseño de Cejas',
+  'Limpieza Facial',
+  'Aromaterapia',
+  'Hidroterapia',
+  'General',
 ]
+
 
 export function EmpleadoForm({ isOpen, onClose, onSubmit, empleado, isLoading }: EmpleadoFormProps) {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
