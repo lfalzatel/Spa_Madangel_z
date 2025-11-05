@@ -21,7 +21,16 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nombre, apellido, email, telefono, especialidad } = body
+    const { 
+      nombre, 
+      apellido, 
+      email, 
+      telefono, 
+      direccion,           // 🔥 NUEVO
+      fechaNacimiento,     // 🔥 NUEVO
+      fechaContratacion,
+      especialidad 
+    } = body
 
     if (!nombre || !apellido || !email) {
       return NextResponse.json(
@@ -36,6 +45,9 @@ export async function POST(request: NextRequest) {
         apellido,
         email,
         telefono,
+        direccion,                                                           // 🔥 NUEVO
+        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : null, // 🔥 NUEVO
+        fechaContratacion: fechaContratacion ? new Date(fechaContratacion) : new Date(),
         especialidad
       }
     })

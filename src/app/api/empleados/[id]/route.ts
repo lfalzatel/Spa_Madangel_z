@@ -33,7 +33,17 @@ export async function PUT(
 ) {
   try {
     const body = await request.json()
-    const { nombre, apellido, email, telefono, especialidad, activo } = body
+    const { 
+      nombre, 
+      apellido, 
+      email, 
+      telefono, 
+      direccion,           // 🔥 NUEVO
+      fechaNacimiento,     // 🔥 NUEVO
+      fechaContratacion,
+      especialidad, 
+      activo 
+    } = body
 
     const empleado = await db.empleado.update({
       where: { id: params.id },
@@ -42,6 +52,9 @@ export async function PUT(
         apellido,
         email,
         telefono,
+        direccion,                                                           // 🔥 NUEVO
+        fechaNacimiento: fechaNacimiento ? new Date(fechaNacimiento) : null, // 🔥 NUEVO
+        fechaContratacion: fechaContratacion ? new Date(fechaContratacion) : undefined,
         especialidad,
         activo
       }

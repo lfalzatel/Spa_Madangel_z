@@ -45,6 +45,7 @@ const ESPECIALIDADES = [
 ]
 
 
+
 export function EmpleadoForm({ isOpen, onClose, onSubmit, empleado, isLoading }: EmpleadoFormProps) {
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {

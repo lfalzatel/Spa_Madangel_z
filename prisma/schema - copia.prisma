@@ -1,0 +1,92 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+//datasource db {
+//  provider = "sqlite"
+//  url      = env("DATABASE_URL")
+//}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Spa Madangel - Sistema de Gestión
+
+model Empleado {
+  id          String   @id @default(cuid())
+  nombre      String
+  apellido    String
+  email       String   @unique
+  telefono    String?
+  especialidad String?
+  fechaContratacion DateTime @default(now())
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  citas       Cita[]
+  
+  @@map("empleados")
+}
+
+model Cliente {
+  id          String   @id @default(cuid())
+  nombre      String
+  apellido    String
+  email       String   @unique
+  telefono    String
+  direccion   String?
+  fechaNacimiento DateTime?
+  notas       String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  citas       Cita[]
+  
+  @@map("clientes")
+}
+
+model Servicio {
+  id          String   @id @default(cuid())
+  nombre      String
+  descripcion String?
+  duracion    Int      // en minutos
+  precio      Float
+  categoria   String   // ej: Manicura, Pedicura, Uñas Acrílicas, etc.
+  activo      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  citas       Cita[]
+  
+  @@map("servicios")
+}
+
+model Cita {
+  id          String   @id @default(cuid())
+  clienteId   String
+  empleadoId  String
+  servicioId  String
+  fecha       DateTime
+  horaInicio  String   // formato HH:MM
+  horaFin     String   // formato HH:MM
+  estado      String   @default("programada") // programada, completada, cancelada, no_asistio
+  notas       String?
+  total       Float
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  cliente     Cliente  @relation(fields: [clienteId], references: [id])
+  empleado    Empleado @relation(fields: [empleadoId], references: [id])
+  servicio    Servicio @relation(fields: [servicioId], references: [id])
+  
+  @@map("citas")
+}
