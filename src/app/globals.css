@@ -76,6 +76,69 @@
   --sidebar-accent-foreground: oklch(0.205 0 0);
   --sidebar-border: oklch(0.922 0 0);
   --sidebar-ring: oklch(0.708 0 0);
+
+  /* ========================================================================
+     VARIABLES PERSONALIZADAS DEL SISTEMA DE DISEÑO
+     ======================================================================== */
+  
+  /* Colores con gradientes */
+  --color-primary: #007bff;
+  --color-success: #28a745;
+  --color-danger: #dc3545;
+  --color-warning: #ffc107;
+  --color-info: #17a2b8;
+  --color-purple: #6f42c1;
+  
+  /* Espaciados */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2rem;
+  --spacing-xl: 2.5rem;
+  
+  /* Border radius */
+  --radius-custom-sm: 10px;
+  --radius-custom-md: 15px;
+  --radius-custom-lg: 20px;
+  --radius-custom-xl: 30px;
+  --border-color: rgba(255,255,255,0.2);
+  
+  /* Sombras */
+  --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+  --shadow-md: 0 8px 32px rgba(0,0,0,0.1);
+  --shadow-lg: 0 15px 45px rgba(0,0,0,0.15);
+  --shadow-xl: 0 30px 90px rgba(0,0,0,0.3);
+  
+  /* Gradientes para tarjetas */
+  --gradient-primary: linear-gradient(135deg, #007bff, #0056b3);
+  --icon-gradient-primary: linear-gradient(135deg, #007bff, #0056b3);
+  --text-gradient-primary: linear-gradient(135deg, #007bff, #0056b3);
+  --shadow-color-primary: rgba(0, 123, 255, 0.3);
+  
+  --gradient-success: linear-gradient(135deg, #28a745, #20c997);
+  --icon-gradient-success: linear-gradient(135deg, #28a745, #20c997);
+  --text-gradient-success: linear-gradient(135deg, #28a745, #20c997);
+  --shadow-color-success: rgba(40, 167, 69, 0.3);
+  
+  --gradient-danger: linear-gradient(135deg, #dc3545, #c82333);
+  --icon-gradient-danger: linear-gradient(135deg, #dc3545, #c82333);
+  --text-gradient-danger: linear-gradient(135deg, #dc3545, #c82333);
+  --shadow-color-danger: rgba(220, 53, 69, 0.3);
+  
+  --gradient-warning: linear-gradient(135deg, #ffc107, #e0a800);
+  --icon-gradient-warning: linear-gradient(135deg, #ffc107, #e0a800);
+  --text-gradient-warning: linear-gradient(135deg, #ffc107, #e0a800);
+  --shadow-color-warning: rgba(255, 193, 7, 0.3);
+  
+  --gradient-info: linear-gradient(135deg, #17a2b8, #138496);
+  --icon-gradient-info: linear-gradient(135deg, #17a2b8, #138496);
+  --text-gradient-info: linear-gradient(135deg, #17a2b8, #138496);
+  --shadow-color-info: rgba(23, 162, 184, 0.3);
+  
+  --gradient-purple: linear-gradient(135deg, #6f42c1, #5a32a3);
+  --icon-gradient-purple: linear-gradient(135deg, #6f42c1, #5a32a3);
+  --text-gradient-purple: linear-gradient(135deg, #6f42c1, #5a32a3);
+  --shadow-color-purple: rgba(111, 66, 193, 0.3);
 }
 
 .dark {
@@ -118,5 +181,331 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+/* ============================================================================
+   ANIMACIONES PERSONALIZADAS
+   ============================================================================ */
+
+@keyframes cardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes statsCardFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes slideShine {
+  0% {
+    left: -100%;
+  }
+  100% {
+    left: 100%;
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* ============================================================================
+   CLASES DE ANIMACIÓN
+   ============================================================================ */
+
+.animate-card-fade-in {
+  animation: cardFadeIn 0.6s ease-out forwards;
+}
+
+.animate-stats-fade-in {
+  animation: statsCardFadeIn 0.8s ease-out forwards;
+}
+
+/* ============================================================================
+   TARJETAS SÓLIDAS CON GRADIENTE (Stats Cards)
+   ============================================================================ */
+
+.solid-card {
+  position: relative;
+  padding: var(--spacing-md);
+  border-radius: var(--radius-custom-md);
+  border: 1px solid var(--border-color);
+  backdrop-filter: blur(10px);
+  box-shadow: var(--shadow-md);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  cursor: pointer;
+  color: white;
+}
+
+/* Gradientes de fondo para cada variante */
+.solid-card.primary { background: var(--gradient-primary); }
+.solid-card.success { background: var(--gradient-success); }
+.solid-card.danger { background: var(--gradient-danger); }
+.solid-card.warning { background: var(--gradient-warning); }
+.solid-card.info { background: var(--gradient-info); }
+.solid-card.purple { background: var(--gradient-purple); }
+
+/* Efecto de brillo animado que se desliza */
+.solid-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.3),
+    transparent
+  );
+  transition: left 0.6s ease;
+}
+
+/* Activar el brillo deslizante en hover */
+.solid-card:hover::before {
+  left: 100%;
+}
+
+/* Hover: Elevación y sombras personalizadas por color */
+.solid-card.primary:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-primary);
+}
+
+.solid-card.success:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-success);
+}
+
+.solid-card.danger:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-danger);
+}
+
+.solid-card.warning:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-warning);
+}
+
+.solid-card.info:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-info);
+}
+
+.solid-card.purple:hover {
+  transform: translateY(-12px) scale(1.02);
+  box-shadow: 0 20px 50px var(--shadow-color-purple);
+}
+
+/* ============================================================================
+   BADGES DE ESTADO
+   ============================================================================ */
+
+.badge-cancelada {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #dc3545, #c82333);
+  color: white;
+  box-shadow: 0 4px 12px rgba(220, 53, 69, 0.3);
+  transition: all 0.3s ease;
+}
+
+.badge-cancelada:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(220, 53, 69, 0.4);
+}
+
+.badge-pendiente {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #ffc107, #e0a800);
+  color: #000;
+  box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+  transition: all 0.3s ease;
+}
+
+.badge-pendiente:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(255, 193, 7, 0.4);
+}
+
+.badge-confirmada {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #007bff, #0056b3);
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.badge-confirmada:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 123, 255, 0.4);
+}
+
+.badge-completada {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  box-shadow: 0 4px 12px rgba(40, 167, 69, 0.3);
+  transition: all 0.3s ease;
+}
+
+.badge-completada:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(40, 167, 69, 0.4);
+}
+
+/* ============================================================================
+   TARJETAS CON BORDE SUPERIOR DE COLOR
+   ============================================================================ */
+
+.card-with-border-top {
+  position: relative;
+  padding: var(--spacing-md);
+  background: white;
+  border-radius: var(--radius-custom-md);
+  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.card-with-border-top::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-primary);
+}
+
+.card-with-border-top.primary::before { background: var(--gradient-primary); }
+.card-with-border-top.success::before { background: var(--gradient-success); }
+.card-with-border-top.danger::before { background: var(--gradient-danger); }
+.card-with-border-top.warning::before { background: var(--gradient-warning); }
+.card-with-border-top.info::before { background: var(--gradient-info); }
+.card-with-border-top.purple::before { background: var(--gradient-purple); }
+
+.card-with-border-top:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+/* ============================================================================
+   TEXTOS CON GRADIENTE
+   ============================================================================ */
+
+.gradient-text-primary {
+  background: var(--text-gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-success {
+  background: var(--text-gradient-success);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-danger {
+  background: var(--text-gradient-danger);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-warning {
+  background: var(--text-gradient-warning);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-info {
+  background: var(--text-gradient-info);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.gradient-text-purple {
+  background: var(--text-gradient-purple);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* ============================================================================
+   FONDOS CON GRADIENTE
+   ============================================================================ */
+
+.bg-gradient-primary { background: var(--gradient-primary); }
+.bg-gradient-success { background: var(--gradient-success); }
+.bg-gradient-danger { background: var(--gradient-danger); }
+.bg-gradient-warning { background: var(--gradient-warning); }
+.bg-gradient-info { background: var(--gradient-info); }
+.bg-gradient-purple { background: var(--gradient-purple); }
+
+/* ============================================================================
+   ACCESIBILIDAD
+   ============================================================================ */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

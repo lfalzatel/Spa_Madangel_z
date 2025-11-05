@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, BriefcaseBusiness, XCircle  } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, CheckCircle, CalendarPlus, Briefcase } from 'lucide-react'
 import { EmpleadoList } from '@/components/empleados/EmpleadoList'
 import { ClienteList } from '@/components/clientes/ClienteList'
 import { ServicioList } from '@/components/servicios/ServicioList'
@@ -14,18 +14,15 @@ import { EstadisticasDashboard } from '@/components/estadisticas/EstadisticasDas
 
 export default function Home() {
   const [stats, setStats] = useState({
-  citasHoy: 0,
-  citasPendientes: 0,
-  citascanceladas: 0,
-  citasCompletadas: 0,
-  serviciosActivos: 0
-})
-const [isLoading, setIsLoading] = useState(true)
-const [activeTab, setActiveTab] = useState('citas')
-// Estado para controlar el modal de nueva cita
-const [triggerNewCita, setTriggerNewCita] = useState(0)
-const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
-  
+    citasHoy: 0,
+    citasPendientes: 0,
+    ingresosMes: 0,
+    citasCompletadasMes: 0
+  })
+  const [isLoading, setIsLoading] = useState(true)
+  const [activeTab, setActiveTab] = useState('citas')
+  // Estado para controlar el modal de nueva cita
+  const [triggerNewCita, setTriggerNewCita] = useState(0)
 
   useEffect(() => {
     fetchStats()
@@ -47,20 +44,15 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
 
       const citasHoy = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
-        const fechaLocal = new Date(fechaCita.getTime() - fechaCita.getTimezoneOffset() * 60000)
-        fechaLocal.setHours(0, 0, 0, 0)
-        return fechaLocal.getTime() === hoy.getTime()
+        fechaCita.setHours(0, 0, 0, 0)
+        return fechaCita.getTime() === hoy.getTime()
       }).length
 
       const citasPendientes = citas.filter((cita: any) => {
         const fechaCita = new Date(cita.fecha)
-        const fechaLocal = new Date(fechaCita.getTime() - fechaCita.getTimezoneOffset() * 60000)
-        fechaLocal.setHours(0, 0, 0, 0)
-
-        return (
-          (cita.estado === 'programada' || cita.estado === 'confirmada') &&
-          fechaLocal >= hoy
-        )
+        fechaCita.setHours(0, 0, 0, 0)
+        return (cita.estado === 'programada' || cita.estado === 'confirmada') && 
+               fechaCita >= hoy
       }).length
 
       const ingresosMes = citas
@@ -83,8 +75,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
         citasHoy,
         citasPendientes,
         ingresosMes,
-        citasCompletadasMes,
-        citasCanceladas: citas.filter((cita: any) => cita.estado === 'cancelada').length
+        citasCompletadasMes
       })
     } catch (error) {
       console.error('Error al obtener estadísticas:', error)
@@ -102,13 +93,9 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
     // Incrementar para trigger el modal
     setTriggerNewCita(prev => prev + 1)
   }
-  const handleCardClick = (filterType) => {
-    setCitaFilter(filterType)
-    setActiveTab('citas')
-  }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-purple-50 p-4 md:p-6">
+    <div className="min-h-screen bg-gradient-to-br from-blue-900 via-indigo-900 to-blue-950 p-4 md:p-6">
       {/* HEADER PRINCIPAL MODERNO */}
       <header className="mb-8 animate-card-fade-in">
         <div className="max-w-7xl mx-auto">
@@ -121,7 +108,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
             <div className="relative z-10 flex items-center justify-between">
               <div className="flex items-center gap-4">
                 <div className="p-4 bg-white/20 backdrop-blur-sm rounded-2xl">
-                  <BriefcaseBusiness className="w-10 h-10 text-white" />
+                  <Briefcase className="w-10 h-10 text-white" />
                 </div>
                 <div>
                   <h1 className="text-4xl font-bold text-white mb-1">
@@ -157,11 +144,11 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
         </div>
       </header>
 
-      {/* Stats Cards - CLICKEABLES */}
+      {/* Stats Cards */}
       <div className="max-w-7xl mx-auto mb-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {/* Tarjeta 1: Citas del Día - CLICKEABLE */}
-          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }} onClick={() => handleCardClick('hoy')}>
+          {/* 1. CITAS DE HOY */}
+          <div className="solid-card primary animate-stats-fade-in" style={{ animationDelay: '0.1s' }}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
                 Citas de Hoy
@@ -172,12 +159,12 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
               {isLoading ? '...' : stats.citasHoy}
             </div>
             <p className="text-xs text-white/70 mt-1">
-              Click para ver las citas de hoy
-              </p>
+              Agendadas para hoy
+            </p>
           </div>
 
           {/* 2. CITAS PENDIENTES */}
-          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.2s' }} onClick={() => handleCardClick('pendientes')}>
+          <div className="solid-card warning animate-stats-fade-in" style={{ animationDelay: '0.2s' }}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
                 Citas Pendientes
@@ -192,65 +179,80 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
             </p>
           </div>
 
-           {/* Tarjeta 3: Citas Canceladas - CLICKEABLE (reemplaza Ingresos del Mes) */}
-          <div
-            className="solid-card success animate-stats-fade-in"
-            style={{ animationDelay: '0.3s' }}
-            onClick={() => handleCardClick('canceladas')}
-          >
+          {/* 3. INGRESOS DEL MES */}
+          <div className="solid-card success animate-stats-fade-in" style={{ animationDelay: '0.3s' }}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
-                Citas canceladas
+                Ingresos del Mes
               </p>
-              <XCircle className="h-5 w-5 text-white" />
+              <DollarSign className="h-5 w-5 text-white" />
             </div>
             <div className="text-3xl font-bold text-white mt-2">
-              {isLoading ? '...' : stats.citasCanceladas}
+              {isLoading ? '...' : `$${stats.ingresosMes.toLocaleString('es-CO')}`}
             </div>
             <p className="text-xs text-white/70 mt-1">
-              Click para ver las citas canceladas
+              Solo citas completadas
             </p>
           </div>
+
           {/* 4. CITAS COMPLETADAS DEL MES */}
-          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' }} onClick={() => handleCardClick('completadas')}>
+          <div className="solid-card purple animate-stats-fade-in" style={{ animationDelay: '0.4s' }}>
             <div className="flex flex-row items-center justify-between space-y-0 pb-2">
               <p className="text-sm font-medium text-white/80">
-                Citas Completadas
+                Completadas Este Mes
               </p>
               <CheckCircle className="h-5 w-5 text-white" />
             </div>
             <div className="text-3xl font-bold text-white mt-2">
               {isLoading ? '...' : stats.citasCompletadasMes}
             </div>
-            <div className="text-2xl font-bold text-green-900">{stats.citasCompletadas}</div>
             <p className="text-xs text-white/70 mt-1">
-              Click para ver completadas
+              Servicios finalizados
             </p>
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="max-w-7xl mx-auto">
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5 bg-white/80 backdrop-blur-sm">
-            <TabsTrigger value="citas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+      <div className="max-w-7xl mx-auto animate-card-fade-in" style={{ animationDelay: '0.3s' }}>
+        <Tabs 
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="space-y-6"
+        >
+          <TabsList className="grid w-full grid-cols-5 bg-white/10 backdrop-blur-md border border-white/20">
+            <TabsTrigger 
+              value="citas" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Calendar className="w-4 h-4 mr-2" />
               Citas
             </TabsTrigger>
-            <TabsTrigger value="clientes" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="clientes" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Users className="w-4 h-4 mr-2" />
               Clientes
             </TabsTrigger>
-            <TabsTrigger value="empleados" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="empleados" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <UserCheck className="w-4 h-4 mr-2" />
               Empleados
             </TabsTrigger>
-            <TabsTrigger value="servicios" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="servicios" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <Package className="w-4 h-4 mr-2" />
               Servicios
             </TabsTrigger>
-            <TabsTrigger value="estadisticas" className="data-[state=active]:bg-pink-500 data-[state=active]:text-white">
+            <TabsTrigger 
+              value="estadisticas" 
+              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-pink-500 data-[state=active]:to-rose-500 data-[state=active]:text-white data-[state=active]:shadow-lg data-[state=active]:shadow-pink-500/50 transition-all duration-300 text-white/70"
+            >
               <TrendingUp className="w-4 h-4 mr-2" />
               Estadísticas
             </TabsTrigger>
@@ -258,6 +260,7 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
 
           <TabsContent value="citas" className="space-y-4">
             <CitaList filterType={citaFilter} onClearFilter={() => setCitaFilter(null)} triggerNewCita={triggerNewCita} />
+            <CitaList triggerNewCita={triggerNewCita} />
           </TabsContent>
 
           <TabsContent value="clientes" className="space-y-4">

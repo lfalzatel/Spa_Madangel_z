@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge'
 import { Input } from '@/components/ui/input'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { ClienteForm } from './ClienteForm'
-import { Search, Plus, Edit, Trash2, User, Mail, Phone, MapPin, Calendar } from 'lucide-react'
+import { Search, Plus, Edit, Trash2, User, Mail, Phone, Calendar, Sparkles } from 'lucide-react'
 
 export function ClienteList() {
   const [clientes, setClientes] = useState([])
@@ -16,9 +16,11 @@ export function ClienteList() {
   const [isFormOpen, setIsFormOpen] = useState(false)
   const [selectedCliente, setSelectedCliente] = useState(null)
   const [isLoading, setIsLoading] = useState(false)
+  const [citas, setCitas] = useState([]) // Para calcular última visita
 
   useEffect(() => {
     fetchClientes()
+    fetchCitas() // Cargar todas las citas para hacer los cálculos
   }, [])
 
   useEffect(() => {
@@ -38,6 +40,16 @@ export function ClienteList() {
       setClientes(data)
     } catch (error) {
       console.error('Error al obtener clientes:', error)
+    }
+  }
+
+  const fetchCitas = async () => {
+    try {
+      const response = await fetch('/api/citas')
+      const data = await response.json()
+      setCitas(data)
+    } catch (error) {
+      console.error('Error al obtener citas:', error)
     }
   }
 
@@ -97,21 +109,64 @@ export function ClienteList() {
     setIsFormOpen(true)
   }
 
-  const calculateAge = (fechaNacimiento: string) => {
-    if (!fechaNacimiento) return null
-    const birth = new Date(fechaNacimiento)
-    const today = new Date()
-    let age = today.getFullYear() - birth.getFullYear()
-    const monthDiff = today.getMonth() - birth.getMonth()
-    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
-      age--
+  // 🔧 FUNCIÓN: Calcular total de citas del cliente
+  const getTotalCitas = (clienteId: string) => {
+    return citas.filter(cita => cita.clienteId === clienteId).length
+  }
+
+  // 🔧 FUNCIÓN: Obtener última visita completada
+  const getUltimaVisita = (clienteId: string) => {
+    // Filtrar solo citas completadas de este cliente
+    const citasCompletadas = citas.filter(
+      cita => cita.clienteId === clienteId && cita.estado === 'completada'
+    )
+
+    // Si no tiene citas completadas
+    if (citasCompletadas.length === 0) {
+      return null
     }
-    return age
+
+    // Ordenar por fecha más reciente
+    const ordenadas = citasCompletadas.sort((a, b) => {
+      const fechaA = new Date(a.fecha)
+      const fechaB = new Date(b.fecha)
+      return fechaB.getTime() - fechaA.getTime()
+    })
+
+    const ultimaCita = ordenadas[0]
+    
+    // Calcular días desde la última visita
+    const fechaVisita = new Date(ultimaCita.fecha)
+    const hoy = new Date()
+    const diffTime = Math.abs(hoy.getTime() - fechaVisita.getTime())
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24))
+
+    return {
+      diasDesde: diffDays,
+      servicio: ultimaCita.servicio?.nombre || 'Servicio no especificado'
+    }
+  }
+
+  // 🔧 FUNCIÓN: Formatear "hace X días"
+  const formatearTiempo = (dias: number) => {
+    if (dias === 0) return 'Hoy'
+    if (dias === 1) return 'Ayer'
+    if (dias < 7) return `Hace ${dias} días`
+    if (dias < 30) {
+      const semanas = Math.floor(dias / 7)
+      return `Hace ${semanas} ${semanas === 1 ? 'semana' : 'semanas'}`
+    }
+    if (dias < 365) {
+      const meses = Math.floor(dias / 30)
+      return `Hace ${meses} ${meses === 1 ? 'mes' : 'meses'}`
+    }
+    const años = Math.floor(dias / 365)
+    return `Hace ${años} ${años === 1 ? 'año' : 'años'}`
   }
 
   return (
     <div className="space-y-6">
-      <Card>
+      <Card className="bg-white/95 backdrop-blur-sm border-white/40 shadow-lg">
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
@@ -123,7 +178,10 @@ export function ClienteList() {
                 Administra la base de datos de clientes del spa Madangel
               </CardDescription>
             </div>
-            <Button onClick={handleNewCliente} className="bg-pink-500 hover:bg-pink-600">
+            <Button 
+              onClick={handleNewCliente} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-lg hover:shadow-pink-500/50 transition-all"
+            >
               <Plus className="w-4 h-4 mr-2" />
               Nuevo Cliente
             </Button>
@@ -148,8 +206,8 @@ export function ClienteList() {
                 <TableRow>
                   <TableHead>Cliente</TableHead>
                   <TableHead>Contacto</TableHead>
-                  <TableHead>Dirección</TableHead>
-                  <TableHead>Edad</TableHead>
+                  <TableHead className="text-center">Total Citas</TableHead>
+                  <TableHead>Última Visita</TableHead>
                   <TableHead>Registrado</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
@@ -166,76 +224,96 @@ export function ClienteList() {
                     </TableCell>
                   </TableRow>
                 ) : (
-                  filteredClientes.map((cliente: any) => (
-                    <TableRow key={cliente.id}>
-                      <TableCell>
-                        <div>
-                          <div className="font-medium">
-                            {cliente.nombre} {cliente.apellido}
-                          </div>
-                          {cliente.notas && (
-                            <div className="text-sm text-gray-500 truncate max-w-xs">
-                              {cliente.notas}
+                  filteredClientes.map((cliente: any) => {
+                    const totalCitas = getTotalCitas(cliente.id)
+                    const ultimaVisita = getUltimaVisita(cliente.id)
+
+                    return (
+                      <TableRow key={cliente.id}>
+                        {/* COLUMNA 1: CLIENTE (simplificada - sin dirección) */}
+                        <TableCell>
+                          <div>
+                            <div className="font-medium">
+                              {cliente.nombre} {cliente.apellido}
                             </div>
+                            {cliente.notas && (
+                              <div className="text-sm text-gray-500 truncate max-w-xs">
+                                {cliente.notas}
+                              </div>
+                            )}
+                          </div>
+                        </TableCell>
+
+                        {/* COLUMNA 2: CONTACTO (solo Email y Teléfono - sin dirección) */}
+                        <TableCell>
+                          <div className="space-y-1">
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Mail className="w-3 h-3 mr-1 text-gray-400" />
+                              {cliente.email}
+                            </div>
+                            <div className="flex items-center text-sm text-gray-600">
+                              <Phone className="w-3 h-3 mr-1 text-gray-400" />
+                              {cliente.telefono}
+                            </div>
+                          </div>
+                        </TableCell>
+
+                        {/* COLUMNA 3: TOTAL CITAS */}
+                        <TableCell className="text-center">
+                          <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r from-blue-500 to-cyan-500 text-white shadow-md shadow-blue-500/30">
+                            {totalCitas} {totalCitas === 1 ? 'cita' : 'citas'}
+                          </span>
+                        </TableCell>
+
+                        {/* COLUMNA 4: ÚLTIMA VISITA */}
+                        <TableCell>
+                          {ultimaVisita ? (
+                            <div className="space-y-1">
+                              <div className="flex items-center text-sm font-medium text-gray-700">
+                                <Calendar className="w-3 h-3 mr-1 text-gray-400" />
+                                {formatearTiempo(ultimaVisita.diasDesde)}
+                              </div>
+                              <div className="flex items-center text-xs text-gray-500">
+                                <Sparkles className="w-3 h-3 mr-1 text-purple-400" />
+                                {ultimaVisita.servicio}
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-sm text-gray-400">Sin visitas previas</span>
                           )}
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        <div className="space-y-1">
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Mail className="w-3 h-3 mr-1" />
-                            {cliente.email}
+                        </TableCell>
+
+                        {/* COLUMNA 5: REGISTRADO */}
+                        <TableCell>
+                          <span className="text-sm text-gray-600">
+                            {new Date(cliente.createdAt).toLocaleDateString('es-ES')}
+                          </span>
+                        </TableCell>
+
+                        {/* COLUMNA 6: ACCIONES */}
+                        <TableCell>
+                          <div className="flex items-center space-x-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleEdit(cliente)}
+                              className="hover:bg-blue-50"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => handleDelete(cliente.id)}
+                              className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600">
-                            <Phone className="w-3 h-3 mr-1" />
-                            {cliente.telefono}
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell>
-                        {cliente.direccion ? (
-                          <div className="flex items-center text-sm text-gray-600">
-                            <MapPin className="w-3 h-3 mr-1" />
-                            <span className="truncate max-w-xs">{cliente.direccion}</span>
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">No registrada</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {cliente.fechaNacimiento ? (
-                          <div className="flex items-center text-sm">
-                            <Calendar className="w-3 h-3 mr-1 text-gray-400" />
-                            {calculateAge(cliente.fechaNacimiento)} años
-                          </div>
-                        ) : (
-                          <span className="text-gray-400">No registrada</span>
-                        )}
-                      </TableCell>
-                      <TableCell>
-                        {new Date(cliente.createdAt).toLocaleDateString('es-ES')}
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center space-x-2">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleEdit(cliente)}
-                          >
-                            <Edit className="w-4 h-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDelete(cliente.id)}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
+                        </TableCell>
+                      </TableRow>
+                    )
+                  })
                 )}
               </TableBody>
             </Table>
@@ -243,6 +321,10 @@ export function ClienteList() {
         </CardContent>
       </Card>
 
+      {/* 🔧 NOTA: El ClienteForm debe actualizarse para QUITAR los campos:
+          - Dirección
+          - Fecha de nacimiento
+          Estos datos no son relevantes para clientes */}
       <ClienteForm
         isOpen={isFormOpen}
         onClose={() => {

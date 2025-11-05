@@ -14,21 +14,25 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Z.ai Code Scaffold - AI-Powered Development",
-  description: "Modern Next.js scaffold optimized for AI-powered development with Z.ai. Built with TypeScript, Tailwind CSS, and shadcn/ui.",
-  keywords: ["Z.ai", "Next.js", "TypeScript", "Tailwind CSS", "shadcn/ui", "AI development", "React"],
-  authors: [{ name: "Z.ai Team" }],
+  title: "Spa Madangel - Sistema de Gestión",
+  description: "Sistema de gestión integral para Spa Madangel. Administra citas, clientes, empleados y servicios de uñas y belleza.",
+  keywords: ["Spa Madangel", "gestión de spa", "citas de belleza", "manicura", "pedicura", "uñas", "Colombia", "Rionegro"],
+  authors: [{ name: "Spa Madangel" }],
   openGraph: {
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
-    url: "https://chat.z.ai",
-    siteName: "Z.ai",
+    title: "Spa Madangel - Sistema de Gestión",
+    description: "Sistema de gestión para spa de uñas y belleza",
+    siteName: "Spa Madangel",
     type: "website",
+    locale: "es_CO",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Z.ai Code Scaffold",
-    description: "AI-powered development with modern React stack",
+    title: "Spa Madangel",
+    description: "Sistema de gestión para spa de uñas y belleza",
+  },
+  robots: {
+    index: false,  // Sistema privado, no indexar
+    follow: false,
   },
 };
 
@@ -38,7 +42,10 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="es" suppressHydrationWarning>
+      <head>
+        <link rel="icon" href="/favicon.ico" />
+      </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased bg-background text-foreground`}
       >

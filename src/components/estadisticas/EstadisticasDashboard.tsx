@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, Star, BarChart3 } from 'lucide-react'
+import { Calendar, Users, UserCheck, Package, TrendingUp, Clock, DollarSign, Star, BarChart3, Award, Crown } from 'lucide-react'
 
 export function EstadisticasDashboard() {
   const [stats, setStats] = useState<any>(null)
@@ -67,38 +67,25 @@ export function EstadisticasDashboard() {
 
   return (
     <div className="space-y-6">
-      {/* Tarjetas de estadísticas principales */}
+      {/* 🔥 TARJETAS DE ESTADÍSTICAS PRINCIPALES - ACTUALIZADAS */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        {/* Tarjeta 1: CITAS TOTALES (antes: Citas de Hoy) */}
         <Card className="bg-white/80 backdrop-blur-sm border-pink-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-pink-700">
-              Citas de Hoy
+              Citas Totales
             </CardTitle>
             <Calendar className="h-4 w-4 text-pink-600" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-pink-900">{stats.citasHoy}</div>
+            <div className="text-2xl font-bold text-pink-900">{stats.citasTotales || 0}</div>
             <p className="text-xs text-pink-600">
-              {stats.clientesHoy} clientes únicos
+              Todas las citas registradas
             </p>
           </CardContent>
         </Card>
 
-        <Card className="bg-white/80 backdrop-blur-sm border-purple-200">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-purple-700">
-              Total Clientes
-            </CardTitle>
-            <Users className="h-4 w-4 text-purple-600" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-purple-900">{stats.totalClientes}</div>
-            <p className="text-xs text-purple-600">
-              {stats.clientesHoy} hoy
-            </p>
-          </CardContent>
-        </Card>
-
+        {/* Tarjeta 2: INGRESOS DEL MES (antes: Total Clientes) */}
         <Card className="bg-white/80 backdrop-blur-sm border-green-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-green-700">
@@ -109,11 +96,28 @@ export function EstadisticasDashboard() {
           <CardContent>
             <div className="text-2xl font-bold text-green-900">${stats.ingresosMes.toFixed(2)}</div>
             <p className="text-xs text-green-600">
-              Total acumulado
+              Citas completadas del mes
             </p>
           </CardContent>
         </Card>
 
+        {/* Tarjeta 3: INGRESOS TOTALES (nueva) */}
+        <Card className="bg-white/80 backdrop-blur-sm border-emerald-200">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-emerald-700">
+              Ingresos Totales
+            </CardTitle>
+            <TrendingUp className="h-4 w-4 text-emerald-600" />
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-emerald-900">${stats.ingresosTotales?.toFixed(2) || '0.00'}</div>
+            <p className="text-xs text-emerald-600">
+              Todas las citas completadas
+            </p>
+          </CardContent>
+        </Card>
+
+        {/* Tarjeta 4: SERVICIOS ACTIVOS (se mantiene) */}
         <Card className="bg-white/80 backdrop-blur-sm border-orange-200">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
             <CardTitle className="text-sm font-medium text-orange-700">
@@ -195,6 +199,89 @@ export function EstadisticasDashboard() {
                   </div>
                 </div>
               ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* 🔥 TOP CLIENTES Y TOP EMPLEADOS - NUEVO */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Top Clientes */}
+        <Card className="bg-white/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Crown className="w-5 h-5 text-yellow-500" />
+              Top Clientes
+            </CardTitle>
+            <CardDescription>
+              Clientes con más citas completadas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.topClientes?.map((cliente: any, index: number) => (
+                <div key={cliente.id} className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-yellow-50 to-amber-50 border border-yellow-100">
+                  <div className="flex items-center space-x-3">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-white shadow-md
+                      ${index === 0 ? 'bg-gradient-to-r from-yellow-400 to-yellow-600' : 
+                        index === 1 ? 'bg-gradient-to-r from-gray-400 to-gray-600' : 
+                        'bg-gradient-to-r from-orange-400 to-orange-600'}`}>
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {cliente.nombre} {cliente.apellido}
+                      </div>
+                      <div className="text-sm text-gray-600">{cliente.email}</div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-yellow-700">{cliente._count.citas}</div>
+                    <div className="text-xs text-gray-600">citas</div>
+                  </div>
+                </div>
+              )) || <p className="text-gray-400 text-center py-4">No hay datos disponibles</p>}
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Top Empleados */}
+        <Card className="bg-white/80 backdrop-blur-sm">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Award className="w-5 h-5 text-blue-500" />
+              Top Empleados
+            </CardTitle>
+            <CardDescription>
+              Empleados con más citas completadas
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {stats.topEmpleados?.map((empleado: any, index: number) => (
+                <div key={empleado.id} className="flex items-center justify-between p-3 rounded-lg bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-100">
+                  <div className="flex items-center space-x-3">
+                    <div className={`flex items-center justify-center w-10 h-10 rounded-full font-bold text-white shadow-md
+                      ${index === 0 ? 'bg-gradient-to-r from-blue-400 to-blue-600' : 
+                        index === 1 ? 'bg-gradient-to-r from-cyan-400 to-cyan-600' : 
+                        'bg-gradient-to-r from-indigo-400 to-indigo-600'}`}>
+                      {index + 1}
+                    </div>
+                    <div>
+                      <div className="font-semibold text-gray-900">
+                        {empleado.nombre} {empleado.apellido}
+                      </div>
+                      <div className="text-sm text-gray-600">
+                        {empleado.especialidad || 'Sin especialidad'}
+                      </div>
+                    </div>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-lg font-bold text-blue-700">{empleado._count.citas}</div>
+                    <div className="text-xs text-gray-600">citas</div>
+                  </div>
+                </div>
+              )) || <p className="text-gray-400 text-center py-4">No hay datos disponibles</p>}
             </div>
           </CardContent>
         </Card>
