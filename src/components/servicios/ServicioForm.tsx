@@ -1,10 +1,9 @@
-// 🔧 EJEMPLO: ServicioForm.tsx - Con useEffect para cargar datos al editar
-// Este es un ejemplo de cómo debe estructurarse el formulario para que
-// cargue correctamente los datos cuando se edita un servicio
+// 📁 src/components/servicios/ServicioForm.tsx (ACTUALIZADO)
+// Formulario actualizado para usar categorías dinámicas
 
 "use client"
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
@@ -13,193 +12,247 @@ import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
+import { Tag, Loader2 } from 'lucide-react'
 
 interface ServicioFormProps {
   isOpen: boolean
   onClose: () => void
   onSubmit: (data: any) => void
-  servicio: any | null // Puede ser null cuando es nuevo servicio
+  servicio: any | null
   isLoading: boolean
 }
 
 export function ServicioForm({ isOpen, onClose, onSubmit, servicio, isLoading }: ServicioFormProps) {
+  const [categorias, setCategorias] = useState([])
+  const [loadingCategorias, setLoadingCategorias] = useState(true)
+  
   const { register, handleSubmit, formState: { errors }, reset, setValue, watch } = useForm({
     defaultValues: {
       nombre: '',
       descripcion: '',
-      categoria: 'Otros',
+      categoriaId: '', // ✨ Cambiado de 'categoria' a 'categoriaId'
       duracion: 30,
       precio: 0,
       activo: true
     }
   })
 
-  // 🔥 CRÍTICO: Este useEffect es lo que carga los datos al editar
+  // Cargar categorías al montar el componente
+  useEffect(() => {
+    fetchCategorias()
+  }, [])
+
+  // Cargar datos del servicio al editar
   useEffect(() => {
     if (servicio) {
-      // Si hay un servicio seleccionado, llenar el formulario con sus datos
       console.log('Cargando datos del servicio:', servicio)
       
       setValue('nombre', servicio.nombre)
       setValue('descripcion', servicio.descripcion || '')
-      setValue('categoria', servicio.categoria)
+      // ✨ Importante: usar categoriaId si existe, sino usar categoria.id si es un objeto
+      setValue('categoriaId', servicio.categoriaId || servicio.categoria?.id || '')
       setValue('duracion', servicio.duracion)
       setValue('precio', servicio.precio)
       setValue('activo', servicio.activo)
     } else {
-      // Si no hay servicio (nuevo), resetear el formulario
       reset({
         nombre: '',
         descripcion: '',
-        categoria: 'Otros',
+        categoriaId: '',
         duracion: 30,
         precio: 0,
         activo: true
       })
     }
-  }, [servicio, setValue, reset]) // Dependencias importantes
+  }, [servicio, setValue, reset])
 
-  const categorias = [
-    'Manicura',
-    'Pedicura',
-    'Uñas Acrílicas',
-    'Uñas de Gel',
-    'Arte en Uñas',
-    'Spa de Manos',
-    'Spa de Pies',
-    'Tratamientos',
-    'Otros'
-  ]
+  const fetchCategorias = async () => {
+    setLoadingCategorias(true)
+    try {
+      const response = await fetch('/api/categorias')
+      const data = await response.json()
+      setCategorias(data)
+    } catch (error) {
+      console.error('Error al obtener categorías:', error)
+    } finally {
+      setLoadingCategorias(false)
+    }
+  }
 
   const handleFormSubmit = (data: any) => {
     onSubmit(data)
   }
+
+  const getColorGradient = (color: string) => {
+    const colorStyles: { [key: string]: string } = {
+      'pink': 'from-pink-500 to-rose-500',
+      'purple': 'from-purple-500 to-indigo-500',
+      'blue': 'from-blue-500 to-cyan-500',
+      'green': 'from-green-500 to-emerald-500',
+      'orange': 'from-orange-500 to-amber-500',
+      'cyan': 'from-cyan-500 to-teal-500',
+      'indigo': 'from-indigo-500 to-blue-500',
+      'red': 'from-red-500 to-pink-500',
+      'gray': 'from-gray-500 to-slate-500'
+    }
+    return colorStyles[color] || colorStyles['gray']
+  }
+
+  const selectedCategoriaId = watch('categoriaId')
+  const selectedCategoria = categorias.find((c: any) => c.id === selectedCategoriaId)
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle>
-            {servicio ? '✏️ Editar Servicio' : '➕ Nuevo Servicio'}
+            {servicio ? 'Editar Servicio' : 'Nuevo Servicio'}
           </DialogTitle>
         </DialogHeader>
-
         <form onSubmit={handleSubmit(handleFormSubmit)} className="space-y-4">
-          {/* Nombre del Servicio */}
-          <div>
-            <Label htmlFor="nombre">Nombre del Servicio *</Label>
+          <div className="space-y-2">
+            <Label htmlFor="nombre">
+              Nombre del Servicio <span className="text-red-500">*</span>
+            </Label>
             <Input
               id="nombre"
-              {...register('nombre', { required: 'El nombre es obligatorio' })}
-              placeholder="Ej: Manicura Francesa"
+              placeholder="ej: Corte de cabello clásico"
+              {...register('nombre', { required: 'El nombre es requerido' })}
             />
             {errors.nombre && (
-              <p className="text-sm text-red-500 mt-1">{errors.nombre.message}</p>
+              <span className="text-sm text-red-500">{errors.nombre.message}</span>
             )}
           </div>
 
-          {/* Descripción */}
-          <div>
+          <div className="space-y-2">
             <Label htmlFor="descripcion">Descripción</Label>
             <Textarea
               id="descripcion"
-              {...register('descripcion')}
-              placeholder="Describe el servicio..."
+              placeholder="Descripción breve del servicio"
               rows={3}
+              {...register('descripcion')}
             />
           </div>
 
-          {/* Categoría */}
-          <div>
-            <Label htmlFor="categoria">Categoría *</Label>
-            <Select
-              value={watch('categoria')}
-              onValueChange={(value) => setValue('categoria', value)}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Selecciona una categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                {categorias.map((cat) => (
-                  <SelectItem key={cat} value={cat}>
-                    {cat}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            {errors.categoria && (
-              <p className="text-sm text-red-500 mt-1">{errors.categoria.message}</p>
+          <div className="space-y-2">
+            <Label htmlFor="categoriaId">
+              <Tag className="w-4 h-4 inline mr-1" />
+              Categoría <span className="text-red-500">*</span>
+            </Label>
+            {loadingCategorias ? (
+              <div className="flex items-center justify-center p-4 border rounded-md">
+                <Loader2 className="w-4 h-4 animate-spin mr-2" />
+                Cargando categorías...
+              </div>
+            ) : categorias.length === 0 ? (
+              <div className="p-4 border border-yellow-300 bg-yellow-50 rounded-md text-sm">
+                <p className="font-medium text-yellow-800">No hay categorías disponibles</p>
+                <p className="text-yellow-600 mt-1">
+                  Por favor, crea al menos una categoría antes de agregar servicios.
+                </p>
+              </div>
+            ) : (
+              <>
+                <Select
+                  value={selectedCategoriaId}
+                  onValueChange={(value) => setValue('categoriaId', value)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Selecciona una categoría" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {categorias.map((categoria: any) => {
+                      const gradient = getColorGradient(categoria.color)
+                      return (
+                        <SelectItem key={categoria.id} value={categoria.id}>
+                          <div className="flex items-center gap-2">
+                            <div className={`w-3 h-3 rounded-full bg-gradient-to-r ${gradient}`} />
+                            {categoria.nombre}
+                          </div>
+                        </SelectItem>
+                      )
+                    })}
+                  </SelectContent>
+                </Select>
+                {selectedCategoria && (
+                  <div className="mt-2">
+                    <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gradient-to-r ${getColorGradient(selectedCategoria.color)} text-white shadow-md`}>
+                      {selectedCategoria.nombre}
+                    </span>
+                  </div>
+                )}
+                {errors.categoriaId && (
+                  <span className="text-sm text-red-500">{errors.categoriaId.message}</span>
+                )}
+              </>
             )}
           </div>
 
-          {/* Duración y Precio en la misma fila */}
           <div className="grid grid-cols-2 gap-4">
-            {/* Duración */}
-            <div>
-              <Label htmlFor="duracion">Duración (min) *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="duracion">
+                Duración (minutos) <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="duracion"
                 type="number"
-                {...register('duracion', {
-                  required: 'La duración es obligatoria',
-                  min: { value: 1, message: 'Mínimo 1 minuto' }
+                min="5"
+                step="5"
+                {...register('duracion', { 
+                  required: 'La duración es requerida',
+                  valueAsNumber: true,
+                  min: { value: 5, message: 'Mínimo 5 minutos' }
                 })}
-                placeholder="30"
               />
               {errors.duracion && (
-                <p className="text-sm text-red-500 mt-1">{errors.duracion.message}</p>
+                <span className="text-sm text-red-500">{errors.duracion.message}</span>
               )}
             </div>
 
-            {/* Precio */}
-            <div>
-              <Label htmlFor="precio">Precio ($) *</Label>
+            <div className="space-y-2">
+              <Label htmlFor="precio">
+                Precio <span className="text-red-500">*</span>
+              </Label>
               <Input
                 id="precio"
                 type="number"
+                min="0"
                 step="0.01"
-                {...register('precio', {
-                  required: 'El precio es obligatorio',
-                  min: { value: 0, message: 'El precio no puede ser negativo' }
+                {...register('precio', { 
+                  required: 'El precio es requerido',
+                  valueAsNumber: true,
+                  min: { value: 0, message: 'El precio debe ser positivo' }
                 })}
-                placeholder="25000"
               />
               {errors.precio && (
-                <p className="text-sm text-red-500 mt-1">{errors.precio.message}</p>
+                <span className="text-sm text-red-500">{errors.precio.message}</span>
               )}
             </div>
           </div>
 
-          {/* Estado Activo/Inactivo */}
-          <div className="flex items-center justify-between p-4 border rounded-lg">
-            <div>
-              <Label htmlFor="activo" className="font-medium">
-                Servicio Activo
-              </Label>
-              <p className="text-sm text-gray-500">
-                {watch('activo') ? 'Visible para los clientes' : 'Oculto de la vista'}
-              </p>
-            </div>
+          <div className="flex items-center space-x-2">
             <Switch
               id="activo"
               checked={watch('activo')}
               onCheckedChange={(checked) => setValue('activo', checked)}
             />
+            <Label htmlFor="activo">
+              {watch('activo') ? 'Servicio activo' : 'Servicio inactivo'}
+            </Label>
           </div>
 
-          {/* Botones */}
-          <div className="flex justify-end gap-3 pt-4">
-            <Button
-              type="button"
-              variant="outline"
+          <div className="flex justify-end gap-2 pt-4">
+            <Button 
+              type="button" 
+              variant="outline" 
               onClick={onClose}
               disabled={isLoading}
             >
               Cancelar
             </Button>
-            <Button
-              type="submit"
-              disabled={isLoading}
+            <Button 
+              type="submit" 
+              disabled={isLoading || loadingCategorias || categorias.length === 0}
               className="bg-gradient-to-r from-pink-500 to-rose-500 text-white"
             >
               {isLoading ? 'Guardando...' : servicio ? 'Actualizar' : 'Crear'}
@@ -210,25 +263,3 @@ export function ServicioForm({ isOpen, onClose, onSubmit, servicio, isLoading }:
     </Dialog>
   )
 }
-
-// 📝 NOTAS IMPORTANTES:
-// 
-// 1. El useEffect con dependencias [servicio, setValue, reset] es CRÍTICO
-//    - Se ejecuta cada vez que cambia el prop 'servicio'
-//    - Si servicio existe, llena el formulario
-//    - Si servicio es null, resetea el formulario
-//
-// 2. Para Select de react-hook-form, usa watch() y setValue() en lugar de register()
-//    - watch('categoria') obtiene el valor actual
-//    - setValue('categoria', value) actualiza el valor
-//
-// 3. Para Switch, usa watch() y onCheckedChange con setValue()
-//    - Similar al Select
-//
-// 4. El console.log ayuda a debuggear si los datos se están cargando correctamente
-//
-// 5. Validaciones importantes:
-//    - Nombre: obligatorio
-//    - Categoría: obligatorio
-//    - Duración: obligatorio, mínimo 1
-//    - Precio: obligatorio, no negativo

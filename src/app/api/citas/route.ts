@@ -1,140 +1,153 @@
+// 📁 src/app/api/citas/[id]/route.ts (ACTUALIZADO)
+// API actualizada para operaciones individuales de citas
+
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
-export async function GET(request: NextRequest) {
+// GET - Obtener una cita específica
+export async function GET(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
-    const { searchParams } = new URL(request.url)
-    const fecha = searchParams.get('fecha')
-    const clienteId = searchParams.get('clienteId')
-    const empleadoId = searchParams.get('empleadoId')
-
-    let whereClause: any = {}
-
-    if (fecha) {
-      const fechaObj = new Date(fecha)
-      const startOfDay = new Date(fechaObj.setHours(0, 0, 0, 0))
-      const endOfDay = new Date(fechaObj.setHours(23, 59, 59, 999))
-      whereClause.fecha = {
-        gte: startOfDay,
-        lte: endOfDay
-      }
-    }
-
-    if (clienteId) {
-      whereClause.clienteId = clienteId
-    }
-
-    if (empleadoId) {
-      whereClause.empleadoId = empleadoId
-    }
-
-    const citas = await db.cita.findMany({
-      where: whereClause,
+    const cita = await db.cita.findUnique({
+      where: { id: params.id },
       include: {
         cliente: true,
         empleado: true,
-        servicio: true
-      },
-      orderBy: [
-        { fecha: 'asc' },
-        { horaInicio: 'asc' }
-      ]
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
+      }
     })
-    
-    return NextResponse.json(citas)
+
+    if (!cita) {
+      return NextResponse.json(
+        { error: 'Cita no encontrada' },
+        { status: 404 }
+      )
+    }
+
+    return NextResponse.json(cita)
   } catch (error) {
-    console.error('Error al obtener citas:', error)
+    console.error('Error al obtener cita:', error)
     return NextResponse.json(
-      { error: 'Error al obtener citas' },
+      { error: 'Error al obtener cita' },
       { status: 500 }
     )
   }
 }
 
-export async function POST(request: NextRequest) {
+// PUT - Actualizar cita
+export async function PUT(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
   try {
     const body = await request.json()
-    const { clienteId, empleadoId, servicioId, fecha, horaInicio, notas } = body
+    const { clienteId, empleadoId, servicioId, fecha, horaInicio, notas, estado } = body
 
-    if (!clienteId || !empleadoId || !servicioId || !fecha || !horaInicio) {
-      return NextResponse.json(
-        { error: 'Todos los campos son requeridos' },
-        { status: 400 }
-      )
-    }
-
-    // Obtener el servicio para calcular duración y precio
-    const servicio = await db.servicio.findUnique({
-      where: { id: servicioId }
+    // Verificar si la cita existe
+    const citaExistente = await db.cita.findUnique({
+      where: { id: params.id }
     })
 
-    if (!servicio) {
+    if (!citaExistente) {
       return NextResponse.json(
-        { error: 'Servicio no encontrado' },
+        { error: 'Cita no encontrada' },
         { status: 404 }
       )
     }
 
-    // Calcular hora fin
-    const [hours, minutes] = horaInicio.split(':').map(Number)
-    const startTime = new Date()
-    startTime.setHours(hours, minutes, 0, 0)
-    const endTime = new Date(startTime.getTime() + servicio.duracion * 60000)
-    const horaFin = `${endTime.getHours().toString().padStart(2, '0')}:${endTime.getMinutes().toString().padStart(2, '0')}`
+    // Si se cambió el servicio, recalcular hora de fin y precio
+    let horaFin = citaExistente.horaFin
+    let total = citaExistente.total
 
-    // Verificar disponibilidad
-    const existingCita = await db.cita.findFirst({
-      where: {
-        empleadoId,
-        fecha: new Date(fecha),
-        OR: [
-          {
-            AND: [
-              { horaInicio: { lte: horaInicio } },
-              { horaFin: { gt: horaInicio } }
-            ]
-          },
-          {
-            AND: [
-              { horaInicio: { lt: horaFin } },
-              { horaFin: { gte: horaFin } }
-            ]
-          }
-        ],
-        estado: { not: 'cancelada' }
+    if (servicioId && servicioId !== citaExistente.servicioId) {
+      const servicio = await db.servicio.findUnique({
+        where: { id: servicioId }
+      })
+
+      if (!servicio) {
+        return NextResponse.json(
+          { error: 'Servicio no encontrado' },
+          { status: 404 }
+        )
       }
-    })
 
-    if (existingCita) {
-      return NextResponse.json(
-        { error: 'El empleado ya tiene una cita en ese horario' },
-        { status: 409 }
-      )
+      const horaInicioActual = horaInicio || citaExistente.horaInicio
+      const [horas, minutos] = horaInicioActual.split(':').map(Number)
+      const totalMinutos = horas * 60 + minutos + servicio.duracion
+      horaFin = `${Math.floor(totalMinutos / 60).toString().padStart(2, '0')}:${(totalMinutos % 60).toString().padStart(2, '0')}`
+      total = servicio.precio
     }
 
-    const cita = await db.cita.create({
+    const cita = await db.cita.update({
+      where: { id: params.id },
       data: {
         clienteId,
         empleadoId,
         servicioId,
-        fecha: new Date(fecha),
+        fecha: fecha ? new Date(fecha) : undefined,
         horaInicio,
         horaFin,
+        estado,
         notas,
-        total: servicio.precio
+        total
       },
       include: {
         cliente: true,
         empleado: true,
-        servicio: true
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
       }
     })
 
-    return NextResponse.json(cita, { status: 201 })
+    return NextResponse.json(cita)
   } catch (error) {
-    console.error('Error al crear cita:', error)
+    console.error('Error al actualizar cita:', error)
     return NextResponse.json(
-      { error: 'Error al crear cita' },
+      { error: 'Error al actualizar cita' },
+      { status: 500 }
+    )
+  }
+}
+
+// DELETE - Eliminar (o cancelar) cita
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  try {
+    // En lugar de eliminar, cambiar estado a 'cancelada'
+    const cita = await db.cita.update({
+      where: { id: params.id },
+      data: { estado: 'cancelada' },
+      include: {
+        cliente: true,
+        empleado: true,
+        servicio: {
+          include: {
+            categoria: true  // ✨ Incluir categoría
+          }
+        }
+      }
+    })
+
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Cita cancelada exitosamente',
+      cita 
+    })
+  } catch (error) {
+    console.error('Error al cancelar cita:', error)
+    return NextResponse.json(
+      { error: 'Error al cancelar cita' },
       { status: 500 }
     )
   }
