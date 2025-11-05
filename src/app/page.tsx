@@ -52,10 +52,14 @@ const [citaFilter, setCitaFilter] = useState(null) // ✅ añadido
       }).length
 
       const citasPendientes = citas.filter((cita: any) => {
+        const fechaCita = new Date(cita.fecha)
+        fechaCita.setHours(0, 0, 0, 0)
         return (
           (cita.estado === 'programada' || cita.estado === 'confirmada') &&
-          cita.estado !== 'completada' && 
-          cita.estado !== 'cancelada'
+          fechaCita >= hoy &&
+          cita.estado !== 'completada' &&
+          cita.estado !== 'cancelada' &&
+          cita.estado !== 'no_asistio'
         )
       }).length
 
