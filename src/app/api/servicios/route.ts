@@ -1,6 +1,3 @@
-// 📁 src/app/api/servicios/route.ts (ACTUALIZADO)
-// API actualizada para usar categorías dinámicas
-
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
@@ -8,14 +5,7 @@ export async function GET() {
   try {
     const servicios = await db.servicio.findMany({
       where: { activo: true },
-      include: {
-        categoria: true // ✨ Incluir datos de la categoría
-      },
-      orderBy: { 
-        categoria: {
-          orden: 'asc'
-        }
-      }
+      orderBy: { categoria: 'asc' }
     })
     
     return NextResponse.json(servicios)
@@ -31,23 +21,11 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
-    const { nombre, descripcion, duracion, precio, categoriaId } = body
+    const { nombre, descripcion, duracion, precio, categoria } = body
 
-    if (!nombre || !duracion || !precio || !categoriaId) {
+    if (!nombre || !duracion || !precio || !categoria) {
       return NextResponse.json(
         { error: 'Nombre, duración, precio y categoría son requeridos' },
-        { status: 400 }
-      )
-    }
-
-    // Verificar que la categoría existe
-    const categoria = await db.categoria.findUnique({
-      where: { id: categoriaId }
-    })
-
-    if (!categoria) {
-      return NextResponse.json(
-        { error: 'La categoría seleccionada no existe' },
         { status: 400 }
       )
     }
@@ -58,10 +36,7 @@ export async function POST(request: NextRequest) {
         descripcion,
         duracion: parseInt(duracion),
         precio: parseFloat(precio),
-        categoriaId // ✨ Ahora usa categoriaId en lugar de categoria
-      },
-      include: {
-        categoria: true
+        categoria
       }
     })
 
